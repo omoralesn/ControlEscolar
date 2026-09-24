@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Planes</h1>
+    <p>Los planes generales los define la plataforma, con las asignaturas del plan de la SEP, antes de que una escuela los adopte. La escuela ve esas materias al registrar su programa y no las modifica.</p>
+
+    <div th:if="${esPlataforma}">
+        <table>
+            <tr th:each="plan : ${rectores}">
+                <td th:text="${plan.nivel}"></td>
+                <td th:text="${plan.nombre}"></td>
+                <td th:text="${plan.tipoPeriodo}"></td>
+            </tr>
+        </table>
+        <form th:if="${!versionesSinListaNacional.isEmpty()}" th:action="@{/planes/asignaturas}" method="post">
+            <input th:replace="~{comun/csrf :: token}">
+            <p>Educación superior no trae una lista nacional. Aquí se registran las materias del plan autorizado del programa.</p>
+            <label>Plan
+                <select name="planVersionId">
+                    <option th:each="version : ${versionesSinListaNacional}" th:value="${version.id}"
+                            th:text="${version.planRector.nombre}"></option>
+                </select>
+            </label>
+            <label>Clave <input name="clave" required></label>
+            <label>Materia <input name="nombre" required></label>
+            <label>Campo <input name="campo"></label>
+            <button type="submit">Agregar materia del programa</button>
+        </form>
+    </div>
+
+    <div th:if="${sesionEscuela}">
+        <form th:action="@{/planes/adoptar}" method="post">
+            <input th:replace="~{comun/csrf :: token}">
+            <label>Plan rector
+                <select name="planVersionId">
+                    <option th:each="version : ${versiones}" th:value="${version.id}"
+                            th:text="${version.planRector.nombre + ' v' + version.numero}"></option>
+                </select>
+            </label>
+            <label>Nombre del programa <input name="nombre" required></label>
+            <button type="submit">Adoptar</button>
+        </form>
+        <form th:action="@{/planes/anexar}" method="post">
+            <input th:replace="~{comun/csrf :: token}">
+            <label>Programa
+                <select name="programaId">
+                    <option th:each="programa : ${programas}" th:value="${programa.id}" th:text="${programa.nombre}"></option>
+                </select>
+            </label>
+            <label>Clave <input name="clave" required></label>
+            <label>Materia complementaria <input name="nombre" required></label>
+            <button type="submit">Anexar</button>
+        </form>
+        <form th:action="@{/planes/cerrar}" method="post">
+            <input th:replace="~{comun/csrf :: token}">
+            <label>Versión a cerrar
+                <select name="planVersionId">
+                    <option th:each="programa : ${programas}" th:value="${programa.planVersion.id}"
+                            th:text="${programa.nombre}"></option>
+                </select>
+            </label>
+            <button type="submit">Cerrar versión del plan</button>
+        </form>
+        <table>
+            <tr th:each="programa : ${programas}">
+                <td th:text="${programa.nombre}"></td>
+                <td th:text="${programa.planVersion.estado}"></td>
+            </tr>
+        </table>
+        <form th:action="@{/planes/esquema}" method="post">
+            <input th:replace="~{comun/csrf :: token}">
+            <p>En media superior y superior la escuela define la aprobatoria, cuántas evaluaciones ordinarias tiene y si usa extraordinarios o segundos cursos. Básica no se edita.</p>
+            <label>Programa
+                <select name="planVersionId">
+                    <option th:each="programa : ${programas}" th:value="${programa.planVersion.id}"
+                            th:text="${programa.nombre}"></option>
+                </select>
+            </label>
+            <label>Aprobatoria <input name="aprobatoria" type="number" step="0.1" required></label>
+            <label>Evaluaciones <input name="ordinarios" type="number" min="1" required></label>
+            <label>Extraordinarios <input name="extraordinarios" type="checkbox" value="true"></label>
+            <label>Segundos cursos <input name="segundoCurso" type="checkbox" value="true"></label>
+            <button type="submit">Configurar esquema</button>
+        </form>
+    </div>
+
+    <h2>Asignaturas del plan</h2>
+    <article th:each="version : ${versiones}">
+        <h3 th:text="${version.planRector.nombre + ' · ' + version.planRector.nivel}"></h3>
+        <p th:if="${asignaturasPorPlan.get(version.id).isEmpty()}">Este nivel no trae materias nacionales. Las asignaturas se registran en el plan autorizado del programa.</p>
+        <table th:if="${!asignaturasPorPlan.get(version.id).isEmpty()}">
+            <tr>
+                <th>Clave</th>
+                <th>Materia</th>
+                <th>Campo</th>
+                <th>Fase</th>
+                <th>Origen</th>
+            </tr>
+            <tr th:each="materia : ${asignaturasPorPlan.get(version.id)}">
+                <td th:text="${materia.clave}"></td>
+                <td th:text="${materia.nombre}"></td>
+                <td th:text="${materia.modulo}"></td>
+                <td th:text="${materia.submodulo}"></td>
+                <td th:text="${materia.oficial} ? 'Plan SEP' : 'Programa autorizado'"></td>
+            </tr>
+        </table>
+    </article>
+</section>
+</body>
+</html>

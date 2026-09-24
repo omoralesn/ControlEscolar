@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Hijos</h1>
+    <h2>Evaluaciones</h2>
+    <table>
+        <tr th:each="evaluacion : ${consulta.evaluaciones}">
+            <td th:text="${evaluacion.asignaturaClave}"></td>
+            <td th:text="${evaluacion.valor != null ? evaluacion.valor : evaluacion.observacion}"></td>
+        </tr>
+    </table>
+    <h2>Avisos</h2>
+    <p th:each="aviso : ${consulta.avisos}" th:text="${aviso.texto}"></p>
+</section>
+</body>
+</html>

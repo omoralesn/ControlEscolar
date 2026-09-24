@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Apoyo estadístico 911</h1>
+    <p>Resumen a partir de la matrícula y el expediente. No sustituye el envío oficial.</p>
+    <table>
+        <tr><th>Escuela</th><td th:text="${resumen.escuela}"></td></tr>
+        <tr><th>CCT</th><td th:text="${resumen.cct}"></td></tr>
+        <tr><th>Alumnos registrados</th><td th:text="${resumen.alumnosRegistrados}"></td></tr>
+        <tr><th>Inscripciones activas</th><td th:text="${resumen.inscripcionesActivas}"></td></tr>
+        <tr><th>Activos</th><td th:text="${resumen.activos}"></td></tr>
+        <tr><th>Bajas</th><td th:text="${resumen.bajas}"></td></tr>
+        <tr><th>Traslados</th><td th:text="${resumen.traslados}"></td></tr>
+        <tr><th>Egresados</th><td th:text="${resumen.egresados}"></td></tr>
+        <tr><th>Con discapacidad</th><td th:text="${resumen.conDiscapacidad}"></td></tr>
+        <tr><th>Usan lentes</th><td th:text="${resumen.usanLentes}"></td></tr>
+        <tr><th>Nuevo ingreso</th><td th:text="${resumen.nuevoIngreso}"></td></tr>
+        <tr><th>Reprobados</th><td th:text="${resumen.reprobados}"></td></tr>
+        <tr><th>Regularizados</th><td th:text="${resumen.regularizados}"></td></tr>
+        <tr><th>Plantilla</th><td th:text="${resumen.plantilla}"></td></tr>
+    </table>
+</section>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Antes de capturar</h1>
+    <ol>
+        <li>El administrador de plataforma da de alta la escuela y elige sus módulos.</li>
+        <li>La escuela adopta un plan rector. Si es particular, anexa sus materias.</li>
+        <li>Registra profesores, grupos y alumnos.</li>
+        <li>Hasta entonces captura evaluaciones.</li>
+    </ol>
+    <p>Los documentos de esta fase son de la escuela. No llevan sello ni firma electrónica.</p>
+    <p>El respaldo de PostgreSQL y de Mongo se toma con <code>docker/respaldo.sh</code>. El ambiente de ensayo usa <code>docker compose -f docker-compose.ensayo.yml up</code>.</p>
+</section>
+</body>
+</html>

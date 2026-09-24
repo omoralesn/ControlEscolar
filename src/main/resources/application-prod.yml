@@ -1,0 +1,10 @@
+spring:
+  thymeleaf:
+    cache: true
+  datasource:
+    url: jdbc:postgresql://postgres:5432/controlescolar
+    username: controlescolar
+    password: controlescolar
+  data:
+    mongodb:
+      uri: mongodb://mongo:27017/controlescolar

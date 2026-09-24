@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Documentos de la escuela</h1>
+    <p>La boleta, la constancia y el kardex son documentos internos de la escuela. El historial incorpora el dictamen de equivalencia o revalidación cuando existe. No llevan sello ni firma de autoridad.</p>
+    <table>
+        <tr th:each="inscripcion : ${inscripciones}">
+            <td th:text="${inscripcion.alumno.nombreCompleto}"></td>
+            <td><a th:href="@{/documentos/boleta(alumnoId=${inscripcion.alumno.id},planVersionId=${inscripcion.planVersion.id})}">Boleta</a></td>
+            <td><a th:href="@{/documentos/historial(alumnoId=${inscripcion.alumno.id},planVersionId=${inscripcion.planVersion.id})}">Historial</a></td>
+            <td><a th:href="@{/documentos/constancia(alumnoId=${inscripcion.alumno.id},planVersionId=${inscripcion.planVersion.id})}">Constancia</a></td>
+        </tr>
+    </table>
+</section>
+</body>
+</html>

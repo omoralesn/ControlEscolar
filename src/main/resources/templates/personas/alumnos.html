@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Alumnos</h1>
+    <form method="get" th:action="@{/alumnos}">
+        <label>Grupo
+            <select name="grupoId">
+                <option th:each="grupo : ${grupos}" th:value="${grupo.id}" th:text="${grupo.nombre}"></option>
+            </select>
+        </label>
+        <button type="submit">Consultar</button>
+    </form>
+    <form th:action="@{/alumnos}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Grupo
+            <select name="grupoId">
+                <option th:each="grupo : ${grupos}" th:value="${grupo.id}" th:text="${grupo.nombre}"></option>
+            </select>
+        </label>
+        <label>CURP <input name="curp" maxlength="18" required></label>
+        <label>Nombre <input name="nombre" required></label>
+        <label>Apellido paterno <input name="apellidoPaterno" required></label>
+        <label>Apellido materno <input name="apellidoMaterno"></label>
+        <button type="submit">Registrar</button>
+    </form>
+    <table>
+        <tr th:each="inscripcion : ${inscripciones}">
+            <td th:text="${inscripcion.alumno.id}"></td>
+            <td th:text="${inscripcion.alumno.nombreCompleto}"></td>
+            <td th:text="${inscripcion.alumno.curp}"></td>
+            <td th:text="${inscripcion.alumno.estatus}"></td>
+            <td th:text="${inscripcion.grupo.nombre}"></td>
+            <td><a th:href="@{/alumnos/{id}/expediente(id=${inscripcion.alumno.id})}">Expediente</a></td>
+            <td><a th:href="@{/alumnos/{id}/dictamen(id=${inscripcion.alumno.id})}">Dictamen</a></td>
+        </tr>
+    </table>
+    <form th:action="@{/alumnos/baja}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Alumno <input name="alumnoId" type="number" required></label>
+        <button type="submit">Baja</button>
+    </form>
+    <form th:action="@{/alumnos/reinscribir}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Alumno <input name="alumnoId" type="number" required></label>
+        <button type="submit">Reinscribir</button>
+    </form>
+    <form th:action="@{/alumnos/trasladar}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Alumno <input name="alumnoId" type="number" required></label>
+        <button type="submit">Traslado</button>
+    </form>
+    <form th:action="@{/alumnos/repetidor}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Alumno <input name="alumnoId" type="number" required></label>
+        <button type="submit">Repetidor</button>
+    </form>
+    <form th:action="@{/alumnos/grupo}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Alumno <input name="alumnoId" type="number" required></label>
+        <label>Nuevo grupo
+            <select name="grupoId">
+                <option th:each="grupo : ${grupos}" th:value="${grupo.id}" th:text="${grupo.nombre}"></option>
+            </select>
+        </label>
+        <button type="submit">Cambiar grupo</button>
+    </form>
+    <form th:action="@{/alumnos/plan}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Alumno <input name="alumnoId" type="number" required></label>
+        <label>Plan
+            <select name="planVersionId">
+                <option th:each="version : ${versiones}" th:value="${version.id}"
+                        th:text="${version.planRector.nombre}"></option>
+            </select>
+        </label>
+        <button type="submit">Cambiar plan</button>
+    </form>
+    <form th:action="@{/alumnos/promover}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Alumno <input name="alumnoId" type="number" required></label>
+        <label>Grupo destino
+            <select name="grupoId">
+                <option th:each="grupo : ${grupos}" th:value="${grupo.id}" th:text="${grupo.nombre}"></option>
+            </select>
+        </label>
+        <button type="submit">Promover</button>
+    </form>
+    <form th:action="@{/alumnos/generacion}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Nombre <input name="nombre" required></label>
+        <label>Año <input name="anioInicio" type="number" required></label>
+        <button type="submit">Crear generación</button>
+    </form>
+    <form th:action="@{/alumnos/generacion/asignar}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Alumno <input name="alumnoId" type="number" required></label>
+        <label>Grupo <input name="grupoId" type="number"></label>
+        <label>Generación
+            <select name="generacionId">
+                <option th:each="generacion : ${generaciones}" th:value="${generacion.id}" th:text="${generacion.nombre}"></option>
+            </select>
+        </label>
+        <button type="submit">Asignar generación</button>
+    </form>
+    <form th:action="@{/alumnos/egresar}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Alumno <input name="alumnoId" type="number" required></label>
+        <button type="submit">Marcar egresado</button>
+    </form>
+    <form th:action="@{/alumnos/umbral}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Plan
+            <select name="planVersionId">
+                <option th:each="version : ${versiones}" th:value="${version.id}" th:text="${version.planRector.nombre}"></option>
+            </select>
+        </label>
+        <label>Créditos para cierre <input name="umbral" type="number" required></label>
+        <button type="submit">Definir umbral</button>
+    </form>
+</section>
+</body>
+</html>

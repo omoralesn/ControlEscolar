@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Asistencia</h1>
+    <form th:action="@{/asistencia}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Grupo
+            <select name="grupoId">
+                <option th:each="grupo : ${grupos}" th:value="${grupo.id}" th:text="${grupo.nombre}"></option>
+            </select>
+        </label>
+        <label>Fecha <input name="fecha" type="date" required></label>
+        <label>Alumno <input name="alumnoId" type="number" required></label>
+        <label>Presente <input name="presente" type="checkbox" value="true"></label>
+        <button type="submit">Registrar lista</button>
+    </form>
+    <form method="get" th:action="@{/asistencia}">
+        <label>Consultar alumno <input name="alumnoId" type="number"></label>
+        <button type="submit">Ver faltas</button>
+    </form>
+    <p th:if="${faltasAlumno != null}" th:text="'Faltas del alumno: ' + ${faltasAlumno}"></p>
+    <form th:action="@{/asistencia/profesor}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Profesor
+            <select name="profesorId">
+                <option th:each="profesor : ${profesores}" th:value="${profesor.id}" th:text="${profesor.nombre}"></option>
+            </select>
+        </label>
+        <label>Fecha <input name="fecha" type="date" required></label>
+        <button type="submit">Registrar falta del profesor</button>
+    </form>
+    <form method="get" th:action="@{/asistencia}">
+        <label>Consultar profesor <input name="profesorId" type="number"></label>
+        <button type="submit">Ver faltas del profesor</button>
+    </form>
+    <p th:if="${faltasProfesor != null}" th:text="'Faltas del profesor: ' + ${faltasProfesor}"></p>
+</section>
+</body>
+</html>

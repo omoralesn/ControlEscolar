@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:fragment="pagina(cuerpo)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Control escolar</title>
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+</head>
+<body>
+<div class="marco">
+    <header>
+        <p class="marca">Control escolar</p>
+    </header>
+    <div class="cuerpo">
+        <nav>
+            <p class="menu-titulo">Módulos</p>
+            <a th:href="@{/}">Inicio</a>
+            <a th:if="${autenticado}" th:href="@{/panel}">Panel</a>
+            <a th:if="${esSuper}" th:href="@{/acceso}">Acceso</a>
+            <a th:if="${esSuper}" th:href="@{/checklist}">Alta de escuela</a>
+            <a th:if="${esPlataforma or menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).PLANES)}" th:href="@{/planes}">Planes</a>
+            <a th:if="${esPlataforma or menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).PLANES)}" th:href="@{/calendarios}">Calendarios</a>
+            <a th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).INSCRIPCION) or menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).PLANTILLA)}" th:href="@{/grupos}">Grupos</a>
+            <a th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).ALUMNOS)}" th:href="@{/alumnos}">Alumnos</a>
+            <a th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).ALUMNOS)}" th:href="@{/estadistica/911}">Apoyo 911</a>
+            <a th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).EVALUACION)}" th:href="@{/calificaciones}">Calificaciones</a>
+            <a th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).EVALUACION) or menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).PLANTILLA)}" th:href="@{/asistencia}">Asistencia</a>
+            <a th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).DOCUMENTOS)}" th:href="@{/documentos}">Documentos</a>
+            <a th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).PADRES)}" th:href="@{/padres}">Padres</a>
+            <a th:if="${sesionEscuela}" th:href="@{/perfiles}">Perfiles</a>
+        <form th:if="${autenticado}" th:action="@{/logout}" method="post">
+            <input th:replace="~{comun/csrf :: token}">
+            <button type="submit">Salir</button>
+        </form>
+        </nav>
+        <main th:replace="${cuerpo}"></main>
+    </div>
+</div>
+</body>
+</html>

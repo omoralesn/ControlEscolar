@@ -1,0 +1,9 @@
+target/
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.tern-project
+*.war
+.DS_Store

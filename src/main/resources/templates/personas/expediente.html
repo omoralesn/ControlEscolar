@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Expediente</h1>
+    <p th:text="${expediente.alumno.nombreCompleto + ' · ' + expediente.alumno.curp}"></p>
+
+    <h2>Datos del alumno</h2>
+    <form th:action="@{/alumnos/{id}/expediente/datos(id=${expediente.alumno.id})}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Nombre <input name="nombre" th:value="${expediente.alumno.nombre}" required></label>
+        <label>Apellido paterno <input name="apellidoPaterno" th:value="${expediente.alumno.apellidoPaterno}" required></label>
+        <label>Apellido materno <input name="apellidoMaterno" th:value="${expediente.alumno.apellidoMaterno}"></label>
+        <label>Sexo
+            <select name="sexo">
+                <option value="">—</option>
+                <option value="H" th:selected="${expediente.alumno.sexo == 'H'}">Hombre</option>
+                <option value="M" th:selected="${expediente.alumno.sexo == 'M'}">Mujer</option>
+            </select>
+        </label>
+        <label>Fecha de nacimiento
+            <input name="fechaNacimiento" type="date" th:value="${expediente.alumno.fechaNacimiento}">
+        </label>
+        <label><input type="checkbox" name="usaLentes" value="true" th:checked="${expediente.alumno.usaLentes}"> Usa lentes</label>
+        <label><input type="checkbox" name="usaZapatoOrtopedico" value="true" th:checked="${expediente.alumno.usaZapatoOrtopedico}"> Zapato ortopédico</label>
+        <fieldset>
+            <legend>Discapacidades (hasta tres)</legend>
+            <label th:each="item : ${discapacidades}">
+                <input type="checkbox" name="discapacidadIds" th:value="${item.id}"
+                       th:checked="${expediente.discapacidades.![id].contains(item.id)}">
+                <span th:text="${item.nombre}"></span>
+            </label>
+        </fieldset>
+        <button type="submit">Guardar datos</button>
+    </form>
+
+    <h2>Domicilio del alumno</h2>
+    <form th:action="@{/alumnos/{id}/expediente/domicilio(id=${expediente.alumno.id})}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Calle <input name="calle" th:value="${expediente.alumno.domicilio?.calle}"></label>
+        <label>Número exterior <input name="numeroExterior" th:value="${expediente.alumno.domicilio?.numeroExterior}"></label>
+        <label>Número interior <input name="numeroInterior" th:value="${expediente.alumno.domicilio?.numeroInterior}"></label>
+        <label>Entre calle <input name="entreCalle" th:value="${expediente.alumno.domicilio?.entreCalle}"></label>
+        <label>Y calle <input name="yCalle" th:value="${expediente.alumno.domicilio?.yCalle}"></label>
+        <label>Colonia <input name="colonia" th:value="${expediente.alumno.domicilio?.colonia}"></label>
+        <label>C.P. <input name="codigoPostal" th:value="${expediente.alumno.domicilio?.codigoPostal}"></label>
+        <label>Referencia <input name="referencia" th:value="${expediente.alumno.domicilio?.referencia}"></label>
+        <label>Estado
+            <select name="estadoId">
+                <option value="">—</option>
+                <option th:each="estado : ${estados}" th:value="${estado.id}" th:text="${estado.nombre}"
+                        th:selected="${expediente.alumno.domicilio?.estado?.id == estado.id}"></option>
+            </select>
+        </label>
+        <label>Municipio
+            <select name="municipioId">
+                <option value="">—</option>
+                <option th:each="municipio : ${municipios}" th:value="${municipio.id}" th:text="${municipio.nombre}"
+                        th:selected="${expediente.alumno.domicilio?.municipio?.id == municipio.id}"></option>
+            </select>
+        </label>
+        <label>Localidad
+            <select name="localidadId">
+                <option value="">—</option>
+                <option th:each="localidad : ${localidades}" th:value="${localidad.id}" th:text="${localidad.nombre}"
+                        th:selected="${expediente.alumno.domicilio?.localidad?.id == localidad.id}"></option>
+            </select>
+        </label>
+        <button type="submit">Guardar domicilio</button>
+    </form>
+
+    <h2>Responsable / tutor</h2>
+    <form th:action="@{/alumnos/{id}/expediente/responsable(id=${expediente.alumno.id})}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <th:block th:with="tutor=${expediente.responsables.empty ? null : expediente.responsables[0]}">
+            <label>CURP <input name="curp" th:value="${tutor?.curp}"></label>
+            <label>Nombre <input name="nombre" th:value="${tutor?.nombre}" required></label>
+            <label>Apellido paterno <input name="apellidoPaterno" th:value="${tutor?.apellidoPaterno}"></label>
+            <label>Apellido materno <input name="apellidoMaterno" th:value="${tutor?.apellidoMaterno}"></label>
+            <label>Parentesco <input name="parentesco" th:value="${tutor?.parentesco}"></label>
+            <label>Teléfono <input name="telefono" th:value="${tutor?.telefono}"></label>
+            <label>Celular <input name="celular" th:value="${tutor?.celular}"></label>
+            <label>Correo <input name="correo" th:value="${tutor?.correo}"></label>
+            <label>Estudios <input name="estudios" th:value="${tutor?.estudios}"></label>
+            <label>Ocupación <input name="ocupacion" th:value="${tutor?.ocupacion}"></label>
+            <label><input type="hidden" name="viveConAlumno" value="false"><input type="checkbox" name="viveConAlumno" value="true" th:checked="${tutor == null or tutor.viveConAlumno}"> Vive con el alumno</label>
+            <label>Calle <input name="calle" th:value="${tutor?.domicilio?.calle}"></label>
+            <label>Número exterior <input name="numeroExterior" th:value="${tutor?.domicilio?.numeroExterior}"></label>
+            <label>Colonia <input name="colonia" th:value="${tutor?.domicilio?.colonia}"></label>
+            <label>C.P. <input name="codigoPostal" th:value="${tutor?.domicilio?.codigoPostal}"></label>
+            <label>Estado
+                <select name="estadoId">
+                    <option value="">—</option>
+                    <option th:each="estado : ${estados}" th:value="${estado.id}" th:text="${estado.nombre}"
+                            th:selected="${tutor?.domicilio?.estado?.id == estado.id}"></option>
+                </select>
+            </label>
+            <label>Municipio
+                <select name="municipioId">
+                    <option value="">—</option>
+                    <option th:each="municipio : ${municipios}" th:value="${municipio.id}" th:text="${municipio.nombre}"
+                            th:selected="${tutor?.domicilio?.municipio?.id == municipio.id}"></option>
+                </select>
+            </label>
+            <label>Localidad
+                <select name="localidadId">
+                    <option value="">—</option>
+                    <option th:each="localidad : ${localidades}" th:value="${localidad.id}" th:text="${localidad.nombre}"
+                            th:selected="${tutor?.domicilio?.localidad?.id == localidad.id}"></option>
+                </select>
+            </label>
+        </th:block>
+        <button type="submit">Guardar responsable</button>
+    </form>
+</section>
+</body>
+</html>

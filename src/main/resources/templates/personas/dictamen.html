@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Dictamen de media superior</h1>
+    <p>Revalidación de estudios hechos en el extranjero y equivalencia de estudios hechos en México. El historial académico los incorpora cuando existen.</p>
+    <table>
+        <tr th:each="dictamen : ${dictamenes}">
+            <td th:text="${dictamen.tipo}"></td>
+            <td th:text="${dictamen.escuelaOrigen}"></td>
+            <td th:text="${dictamen.materias}"></td>
+            <td th:text="${dictamen.promedio}"></td>
+        </tr>
+    </table>
+    <h2>Revalidación</h2>
+    <form th:action="@{/alumnos/{id}/dictamen/revalidacion(id=${alumnoId})}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Dictamen por <input name="dictamenPor" required placeholder="1er semestre"></label>
+        <label>Escuela de origen <input name="escuelaOrigen" required></label>
+        <label>Ciclo inicio <input name="cicloInicio" required></label>
+        <label>Ciclo fin <input name="cicloFin" required></label>
+        <label>Estado <input name="estado"></label>
+        <label>País <input name="pais" required></label>
+        <label>Expediente <input name="expediente"></label>
+        <label>Folio <input name="folio"></label>
+        <label>Fecha <input name="fecha" type="date" required></label>
+        <label>Materias reconocidas <input name="materias"></label>
+        <button type="submit">Guardar revalidación</button>
+    </form>
+    <h2>Equivalencia</h2>
+    <form th:action="@{/alumnos/{id}/dictamen/equivalencia(id=${alumnoId})}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Dictamen por <input name="dictamenPor" required placeholder="3er semestre"></label>
+        <label>Escuela de origen <input name="escuelaOrigen" required></label>
+        <label>Ciclo inicio <input name="cicloInicio" required></label>
+        <label>Ciclo fin <input name="cicloFin" required></label>
+        <label>Dependencia <input name="dependencia"></label>
+        <label>Estado <input name="estado" required></label>
+        <label>Expediente <input name="expediente"></label>
+        <label>Promedio <input name="promedio" type="number" step="0.1" min="6" max="10" required></label>
+        <label>Fecha <input name="fecha" type="date" required></label>
+        <label>Materias reconocidas <input name="materias"></label>
+        <button type="submit">Guardar equivalencia</button>
+    </form>
+</section>
+</body>
+</html>

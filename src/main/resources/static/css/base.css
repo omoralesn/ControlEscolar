@@ -1,0 +1,69 @@
+:root {
+    color: #1c1917;
+    background: #fafaf9;
+    font-family: "Source Sans 3", "Segoe UI", sans-serif;
+    line-height: 1.5;
+}
+
+body {
+    margin: 0;
+}
+
+.marco {
+    max-width: 64rem;
+    margin: 0 auto;
+}
+
+header, nav, main {
+    padding: 1.5rem;
+}
+
+.cuerpo {
+    display: flex;
+    align-items: flex-start;
+}
+
+nav {
+    width: 12rem;
+    border-right: 1px solid #e7e5e4;
+}
+
+.menu-titulo {
+    margin: 0 0 0.5rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+nav a, nav form, label, button {
+    display: block;
+    margin: 0.35rem 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+td, th {
+    text-align: left;
+    padding: 0.25rem 0.5rem;
+    border-bottom: 1px solid #e7e5e4;
+}
+
+header {
+    border-bottom: 1px solid #e7e5e4;
+}
+
+.marca {
+    margin: 0;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+h1 {
+    font-size: 1.75rem;
+    font-weight: 650;
+    margin: 0 0 0.75rem;
+}

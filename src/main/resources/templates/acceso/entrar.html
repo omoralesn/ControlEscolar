@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Entrar</h1>
+    <form th:action="@{/entrar}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Usuario <input name="username" required></label>
+        <label>Contraseña <input name="password" type="password" required></label>
+        <button type="submit">Entrar</button>
+    </form>
+</section>
+</body>
+</html>

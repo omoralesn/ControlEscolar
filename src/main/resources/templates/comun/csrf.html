@@ -1,0 +1,2 @@
+<input th:fragment="token" type="hidden" xmlns:th="http://www.thymeleaf.org"
+       th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">

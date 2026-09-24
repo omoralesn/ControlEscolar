@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Escuelas</h1>
+    <form th:action="@{/escuelas}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Nombre <input name="nombre" required></label>
+        <label>CCT <input name="claveCct"></label>
+        <label>Nivel
+            <select name="nivel">
+                <option value="">Sin declarar</option>
+                <option value="PREESCOLAR">Preescolar</option>
+                <option value="PRIMARIA">Primaria</option>
+                <option value="SECUNDARIA">Secundaria</option>
+                <option value="MEDIA_SUPERIOR">Media superior</option>
+                <option value="SUPERIOR">Superior</option>
+            </select>
+        </label>
+        <label>Sostenimiento
+            <select name="sostenimiento">
+                <option value="PARTICULAR">Particular</option>
+                <option value="ESTATAL">Estatal</option>
+                <option value="FEDERAL">Federal</option>
+                <option value="DESCONCENTRADA">Desconcentrada</option>
+                <option value="AUTONOMO">Autónomo</option>
+            </select>
+        </label>
+        <label>Particular <input name="particular" type="checkbox" value="true"></label>
+        <fieldset>
+            <legend>Módulos</legend>
+            <label th:each="modulo : ${modulos}">
+                <input type="checkbox" name="habilitados" th:value="${modulo}">
+                <span th:text="${modulo}"></span>
+            </label>
+        </fieldset>
+        <label>Usuario escolar <input name="loginEscolar" required></label>
+        <label>Contraseña <input name="claveEscolar" required></label>
+        <button type="submit">Dar de alta</button>
+    </form>
+    <table>
+        <tr th:each="escuela : ${escuelas}">
+            <td th:text="${escuela.nombre}"></td>
+            <td th:text="${escuela.activa} ? 'Activa' : 'Suspendida'"></td>
+            <td>
+                <form th:action="@{/escuelas/{id}/suspender(id=${escuela.id})}" method="post">
+                    <input th:replace="~{comun/csrf :: token}">
+                    <button type="submit">Suspender</button>
+                </form>
+                <form th:action="@{/escuelas/{id}/activar(id=${escuela.id})}" method="post">
+                    <input th:replace="~{comun/csrf :: token}">
+                    <button type="submit">Activar</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+    <form th:action="@{/escuelas/modulos}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Escuela <input name="institucionId" type="number" required></label>
+        <fieldset>
+            <legend>Módulos</legend>
+            <label th:each="modulo : ${modulos}">
+                <input type="checkbox" name="habilitados" th:value="${modulo}">
+                <span th:text="${modulo}"></span>
+            </label>
+        </fieldset>
+        <button type="submit">Actualizar módulos</button>
+    </form>
+    <h2>Centros del plantel</h2>
+    <table>
+        <tr th:each="centro : ${centros}">
+            <td th:text="${centro.clave}"></td>
+            <td th:text="${centro.nivel}"></td>
+            <td th:text="${centro.sostenimiento}"></td>
+            <td th:text="${centro.entidadNombre}"></td>
+        </tr>
+    </table>
+</section>
+</body>
+</html>

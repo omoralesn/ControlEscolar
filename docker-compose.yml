@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: controlescolar
+      POSTGRES_USER: controlescolar
+      POSTGRES_PASSWORD: controlescolar
+    ports:
+      - "5432:5432"
+    volumes:
+      - controlescolar-pg:/var/lib/postgresql/data
+
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - controlescolar-mongo:/data/db
+
+  wildfly:
+    build:
+      context: .
+      dockerfile: docker/wildfly/Dockerfile
+    depends_on:
+      - postgres
+      - mongo
+    ports:
+      - "8080:8080"
+      - "8787:8787"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8787"
+
+volumes:
+  controlescolar-pg:
+  controlescolar-mongo:
