@@ -39,12 +39,23 @@ public class GrupoService {
 
     @Transactional
     public Grupo registrar(Long institucionId, Long programaId, String nombre, int periodoOrden) {
+        return registrar(institucionId, programaId, nombre, periodoOrden, null, null, 0);
+    }
+
+    @Transactional
+    public Grupo registrar(Long institucionId, Long programaId, String nombre, int periodoOrden,
+                           String edificio, String aula, int capacidad) {
         this.modulos.exigir(institucionId, Modulo.INSCRIPCION);
         Programa programa = (Programa)this.programas.findById(programaId).orElseThrow();
         if (!programa.getInstitucion().getId().equals(institucionId)) {
             throw new NegocioException("El programa no pertenece a la escuela");
         }
-        return (Grupo)this.grupos.save(new Grupo(programa.getInstitucion(), programa, nombre, periodoOrden));
+        if (capacidad < 0) {
+            throw new NegocioException("La capacidad no puede ser negativa");
+        }
+        Grupo grupo = (Grupo)this.grupos.save(new Grupo(programa.getInstitucion(), programa, nombre, periodoOrden));
+        grupo.ubicar(edificio, aula, capacidad);
+        return grupo;
     }
 
     public List<Grupo> consultar(Long institucionId) {

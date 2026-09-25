@@ -32,6 +32,24 @@ public class MenuAdvice {
         model.addAttribute("esPlataforma", usuario != null && usuario.esPlataforma());
         model.addAttribute("esSuper", usuario != null && usuario.esSuper());
         model.addAttribute("sesionEscuela", usuario != null && usuario.esEscuela());
+        model.addAttribute("esTutor", usuario != null && usuario.esTutor());
         model.addAttribute("autenticado", usuario != null);
+        model.addAttribute("sesionNombre", usuario == null ? null : usuario.getNombre());
+        model.addAttribute("escuelaNombre", usuario != null && usuario.getInstitucion() != null
+                ? usuario.getInstitucion().getNombre() : null);
+        model.addAttribute("rutaActual", rutaActual());
+    }
+
+    private static String rutaActual() {
+        var atributos = org.springframework.web.context.request.RequestContextHolder.getRequestAttributes();
+        if (atributos instanceof org.springframework.web.context.request.ServletRequestAttributes servlet) {
+            String uri = servlet.getRequest().getRequestURI();
+            String contexto = servlet.getRequest().getContextPath();
+            if (contexto != null && !contexto.isEmpty() && uri.startsWith(contexto)) {
+                return uri.substring(contexto.length());
+            }
+            return uri;
+        }
+        return "";
     }
 }

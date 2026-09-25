@@ -28,49 +28,58 @@ public class CalendarioController {
         }
         model.addAttribute("ciclos", this.calendarios.ciclos());
         model.addAttribute("oficiales", this.calendarios.oficiales());
-        if (this.sesion.usuario() != null && this.sesion.usuario().esPlataforma()) {
-            return "academico/calendarios";
+        if (this.sesion.usuario() != null && !this.sesion.usuario().esPlataforma()) {
+            this.perfiles.exigir(this.sesion.usuario().getId(), "PLANES_CONSULTAR");
+        }
+        return "academico/calendarios";
+    }
+
+    @GetMapping("/calendarios/propio")
+    public String propio(Model model) {
+        if (this.sesion.usuario() == null || !this.sesion.usuario().esEscuela()) {
+            throw new NegocioException("El calendario propio lo publica la escuela");
         }
         Long escuela = this.sesion.institucionId();
         this.perfiles.exigir(this.sesion.usuario().getId(), "PLANES_CONSULTAR");
+        model.addAttribute("ciclos", this.calendarios.ciclos());
         model.addAttribute("propios", this.calendarios.deLaEscuela(escuela));
         model.addAttribute("versiones", this.planes.vigentes());
-        return "academico/calendarios";
+        return "academico/calendario-propio";
     }
 
     @PostMapping(value={"/calendarios"})
     public String crear(@RequestParam Long cicloId, @RequestParam String nivel, @RequestParam(required=false) String tipoPeriodo, @RequestParam(required=false) Integer diasEfectivos) {
         this.perfiles.exigir(this.sesion.usuario().getId(), "PLANES_CONFIGURAR");
         this.calendarios.crearDeEscuela(this.sesion.institucionId(), cicloId, nivel, tipoPeriodo, diasEfectivos);
-        return "redirect:/calendarios";
+        return "redirect:/calendarios/propio";
     }
 
     @PostMapping(value={"/calendarios/eventos"})
     public String evento(@RequestParam Long calendarioId, @RequestParam String tipo, @RequestParam String nombre, @RequestParam @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate inicio, @RequestParam @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate fin) {
         this.perfiles.exigir(this.sesion.usuario().getId(), "PLANES_CONFIGURAR");
         this.calendarios.agregarEvento(calendarioId, tipo, nombre, inicio, fin);
-        return "redirect:/calendarios";
+        return "redirect:/calendarios/propio";
     }
 
     @PostMapping(value={"/calendarios/periodos"})
     public String periodo(@RequestParam Long calendarioId, @RequestParam Long periodoPlanId, @RequestParam @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate inicio, @RequestParam @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate fin) {
         this.perfiles.exigir(this.sesion.usuario().getId(), "PLANES_CONFIGURAR");
         this.calendarios.abrirPeriodo(calendarioId, periodoPlanId, inicio, fin);
-        return "redirect:/calendarios";
+        return "redirect:/calendarios/propio";
     }
 
     @PostMapping(value={"/calendarios/ventanas"})
     public String ventana(@RequestParam Long periodoCicloId, @RequestParam Long momentoId, @RequestParam @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate capturaDesde, @RequestParam @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate capturaHasta, @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate publicacionDesde) {
         this.perfiles.exigir(this.sesion.usuario().getId(), "PLANES_CONFIGURAR");
         this.calendarios.configurarVentana(periodoCicloId, momentoId, capturaDesde, capturaHasta, publicacionDesde);
-        return "redirect:/calendarios";
+        return "redirect:/calendarios/propio";
     }
 
     @PostMapping(value={"/calendarios/cerrar"})
     public String cerrar(@RequestParam Long periodoCicloId) {
         this.perfiles.exigir(this.sesion.usuario().getId(), "PLANES_CERRAR");
         this.calendarios.cerrarPeriodo(periodoCicloId);
-        return "redirect:/calendarios";
+        return "redirect:/calendarios/propio";
     }
 
     @Generated

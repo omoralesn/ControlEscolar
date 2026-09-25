@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface UsuarioPerfilRepositorio extends JpaRepository<UsuarioPerfil, UsuarioPerfil.Clave> {
     List<UsuarioPerfil> findByUsuarioId(Long usuarioId);
+
+    void deleteByUsuarioId(Long usuarioId);
 }

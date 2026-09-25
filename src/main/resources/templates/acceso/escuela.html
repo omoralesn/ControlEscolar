@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1 th:text="${escuela.nombre}">Escuela</h1>
+    <p th:text="${escuela.activa} ? 'Activa' : 'Suspendida'"></p>
+    <p>
+        <a th:href="@{/acceso/escuelas/{id}/cct(id=${escuelaId})}">CCT</a>
+        <a th:href="@{/acceso/escuelas/{id}/modulos(id=${escuelaId})}">Módulos</a>
+        <a th:href="@{/acceso/escuelas/{id}/usuarios(id=${escuelaId})}">Usuarios</a>
+        <a th:href="@{/acceso/escuelas/{id}/perfiles(id=${escuelaId})}">Perfiles</a>
+        <a th:href="@{/acceso/escuelas/{id}/bitacora(id=${escuelaId})}">Bitácora</a>
+    </p>
+
+    <h2>CCT (solo consulta)</h2>
+    <div th:each="centro : ${centros}">
+        <p th:text="'Clave: ' + ${centro.clave}"></p>
+        <p th:text="'Entidad: ' + ${centro.entidadClave} + ' · ' + ${centro.entidadNombre}"></p>
+        <p th:text="'Clasificador: ' + ${centro.clasificador} + ' · Sostenimiento: ' + ${centro.sostenimiento}"></p>
+        <p th:text="'Identificador de nivel: ' + ${centro.identificador} + ' · Nivel: ' + ${centro.nivel}"></p>
+        <p th:text="'Progresivo: ' + ${centro.progresivo}"></p>
+    </div>
+    <p th:if="${#lists.isEmpty(centros)}">Sin CCT registrada.</p>
+
+    <h2>Contacto (consulta)</h2>
+    <p>Lo actualiza la escuela en su pantalla de datos.</p>
+    <p th:if="${escuela.contactoNombre != null}" th:text="'Contacto: ' + ${escuela.contactoNombre}"></p>
+    <p th:if="${escuela.telefono != null}" th:text="'Teléfono: ' + ${escuela.telefono}"></p>
+    <p th:if="${escuela.celular != null}" th:text="'Celular: ' + ${escuela.celular}"></p>
+    <p th:if="${escuela.correo != null}" th:text="'Correo: ' + ${escuela.correo}"></p>
+
+    <h2>Domicilio (consulta)</h2>
+    <div th:if="${escuela.domicilio != null}">
+        <p th:text="${escuela.domicilio.calle}"></p>
+        <p th:if="${escuela.domicilio.localidad != null}"
+           th:text="${escuela.domicilio.localidad.nombre + ' · CP ' + escuela.domicilio.codigoPostal
+                + ' · ' + escuela.domicilio.municipio.nombre + ', ' + escuela.domicilio.estado.nombre}"></p>
+    </div>
+    <p th:if="${escuela.domicilio == null}">Sin domicilio capturado.</p>
+</section>
+</body>
+</html>

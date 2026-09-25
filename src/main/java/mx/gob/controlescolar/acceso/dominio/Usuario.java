@@ -1,8 +1,10 @@
 package mx.gob.controlescolar.acceso.dominio;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -47,8 +50,13 @@ public class Usuario implements UserDetails {
     private Alcance alcance;
 
     private boolean activo = true;
+    private boolean bloqueado = false;
+    private boolean credencialesVigentes = true;
     private LocalDate vigenteDesde;
     private LocalDate vigenteHasta;
+
+    @Transient
+    private Set<String> permisos = Set.of();
 
     public Usuario(Institucion institucion, String login, String clave, String nombre) {
         this.institucion = institucion;
@@ -65,6 +73,16 @@ public class Usuario implements UserDetails {
         return usuario;
     }
 
+    public static Usuario tutor(Institucion institucion, String login, String clave, String nombre) {
+        Usuario usuario = new Usuario(institucion, login, clave, nombre);
+        usuario.alcance = Alcance.TUTOR;
+        return usuario;
+    }
+
+    public void cambiarClave(String clave) {
+        this.clave = clave;
+    }
+
     public boolean esPlataforma() {
         return alcance == Alcance.PLATAFORMA;
     }
@@ -75,6 +93,10 @@ public class Usuario implements UserDetails {
 
     public boolean esEscuela() {
         return alcance == Alcance.ESCUELA;
+    }
+
+    public boolean esTutor() {
+        return alcance == Alcance.TUTOR;
     }
 
     public void definirVigencia(LocalDate desde, LocalDate hasta) {
@@ -90,18 +112,60 @@ public class Usuario implements UserDetails {
         this.activo = true;
     }
 
+    public void bloquear() {
+        this.bloqueado = true;
+    }
+
+    public void desbloquear() {
+        this.bloqueado = false;
+    }
+
+    public void vencerCredenciales() {
+        this.credencialesVigentes = false;
+    }
+
+    public void reponerCredenciales(String claveCifrada) {
+        this.clave = claveCifrada;
+        this.credencialesVigentes = true;
+    }
+
+    /** Permisos del perfil, se cargan al autenticar y pasan a ser autoridades de Spring Security. */
+    public void conceder(Set<String> permisos) {
+        this.permisos = permisos == null ? Set.of() : Set.copyOf(permisos);
+    }
+
     public void asignarCentro(CentroTrabajo centroTrabajo) {
         this.centroTrabajo = centroTrabajo;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String rol = switch (alcance) {
+        List<GrantedAuthority> autoridades = new ArrayList<>();
+        autoridades.add(new SimpleGrantedAuthority(switch (alcance) {
             case SUPER -> "ROLE_SUPER";
             case PLATAFORMA -> "ROLE_PLATAFORMA";
             case ESCUELA -> "ROLE_ESCUELA";
-        };
-        return List.of(new SimpleGrantedAuthority(rol));
+            case TUTOR -> "ROLE_TUTOR";
+        }));
+        for (String permiso : permisos) {
+            autoridades.add(new SimpleGrantedAuthority(permiso));
+        }
+        return autoridades;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return vigenteHasta == null || !LocalDate.now().isAfter(vigenteHasta);
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return !bloqueado;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return credencialesVigentes;
     }
 
     @Override
@@ -111,9 +175,6 @@ public class Usuario implements UserDetails {
         }
         LocalDate hoy = LocalDate.now();
         if (vigenteDesde != null && hoy.isBefore(vigenteDesde)) {
-            return false;
-        }
-        if (vigenteHasta != null && hoy.isAfter(vigenteHasta)) {
             return false;
         }
         if (institucion != null && !institucion.isActiva()) {

@@ -1,0 +1,3 @@
+INSERT INTO permisos (codigo) VALUES
+    ('USUARIOS_CONSULTAR'),
+    ('USUARIOS_CAPTURAR');

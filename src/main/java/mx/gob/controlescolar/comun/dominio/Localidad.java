@@ -28,8 +28,19 @@ public class Localidad {
 
     private String nombre;
 
+    private String codigoPostal;
+
     public Localidad(Municipio municipio, String nombre) {
         this.municipio = municipio;
         this.nombre = nombre;
+    }
+
+    public Localidad(Municipio municipio, String nombre, String codigoPostal) {
+        this(municipio, nombre);
+        this.codigoPostal = codigoPostal;
+    }
+
+    public void definirCodigoPostal(String codigoPostal) {
+        this.codigoPostal = codigoPostal;
     }
 }

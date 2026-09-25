@@ -8,30 +8,93 @@
 </head>
 <body>
 <div class="marco">
-    <header>
-        <p class="marca">Control escolar</p>
+    <header class="cabecera">
+        <div>
+            <p class="marca"><a th:href="@{/}">Control escolar</a></p>
+            <p class="contexto" th:if="${escuelaNombre}" th:text="${escuelaNombre}"></p>
+        </div>
+        <div class="sesion" th:if="${autenticado}">
+            <span th:text="${sesionNombre}"></span>
+            <form th:action="@{/logout}" method="post">
+                <input th:replace="~{comun/csrf :: token}">
+                <button type="submit">Salir</button>
+            </form>
+        </div>
     </header>
     <div class="cuerpo">
-        <nav>
+        <nav th:unless="${esTutor}">
             <p class="menu-titulo">Módulos</p>
-            <a th:href="@{/}">Inicio</a>
-            <a th:if="${autenticado}" th:href="@{/panel}">Panel</a>
-            <a th:if="${esSuper}" th:href="@{/acceso}">Acceso</a>
-            <a th:if="${esSuper}" th:href="@{/checklist}">Alta de escuela</a>
-            <a th:if="${esPlataforma or menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).PLANES)}" th:href="@{/planes}">Planes</a>
-            <a th:if="${esPlataforma or menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).PLANES)}" th:href="@{/calendarios}">Calendarios</a>
-            <a th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).INSCRIPCION) or menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).PLANTILLA)}" th:href="@{/grupos}">Grupos</a>
-            <a th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).ALUMNOS)}" th:href="@{/alumnos}">Alumnos</a>
-            <a th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).ALUMNOS)}" th:href="@{/estadistica/911}">Apoyo 911</a>
-            <a th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).EVALUACION)}" th:href="@{/calificaciones}">Calificaciones</a>
-            <a th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).EVALUACION) or menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).PLANTILLA)}" th:href="@{/asistencia}">Asistencia</a>
-            <a th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).DOCUMENTOS)}" th:href="@{/documentos}">Documentos</a>
-            <a th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).PADRES)}" th:href="@{/padres}">Padres</a>
-            <a th:if="${sesionEscuela}" th:href="@{/perfiles}">Perfiles</a>
-        <form th:if="${autenticado}" th:action="@{/logout}" method="post">
-            <input th:replace="~{comun/csrf :: token}">
-            <button type="submit">Salir</button>
-        </form>
+
+            <details th:if="${esSuper}" th:attr="open=${#strings.startsWith(rutaActual, '/acceso') or #strings.startsWith(rutaActual, '/escuelas') ? 'open' : null}">
+                <summary>Acceso</summary>
+                <a th:href="@{/acceso/escuelas}" th:classappend="${#strings.startsWith(rutaActual, '/acceso/escuelas')} ? 'actual'">Escuelas</a>
+                <a th:href="@{/acceso/usuarios}" th:classappend="${rutaActual == '/acceso/usuarios'} ? 'actual'">Usuarios</a>
+                <a th:href="@{/acceso/perfiles}" th:classappend="${rutaActual == '/acceso/perfiles'} ? 'actual'">Perfiles</a>
+                <a th:href="@{/acceso/planteles}" th:classappend="${#strings.startsWith(rutaActual, '/acceso/planteles')} ? 'actual'">Planteles</a>
+                <a th:href="@{/acceso/plantilla}" th:classappend="${rutaActual == '/acceso/plantilla'} ? 'actual'">Plantilla</a>
+                <div th:if="${escuelaId != null}">
+                    <a th:href="@{/acceso/escuelas/{id}(id=${escuelaId})}">Esta escuela</a>
+                    <a th:href="@{/acceso/escuelas/{id}/cct(id=${escuelaId})}">CCT</a>
+                    <a th:href="@{/acceso/escuelas/{id}/modulos(id=${escuelaId})}">Módulos</a>
+                    <a th:href="@{/acceso/escuelas/{id}/bitacora(id=${escuelaId})}">Bitácora</a>
+                </div>
+            </details>
+
+            <details th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).ALUMNOS)}"
+                     th:attr="open=${#strings.startsWith(rutaActual, '/alumnos') or #strings.startsWith(rutaActual, '/estadistica') ? 'open' : null}">
+                <summary>Alumnos</summary>
+                <a th:href="@{/alumnos}" th:classappend="${rutaActual == '/alumnos'} ? 'actual'">Padrón</a>
+                <a th:href="@{/alumnos/movimientos}" th:classappend="${#strings.startsWith(rutaActual, '/alumnos/movimientos')} ? 'actual'">Movimientos</a>
+                <a th:href="@{/estadistica/911}" th:classappend="${#strings.startsWith(rutaActual, '/estadistica')} ? 'actual'">Apoyo 911</a>
+            </details>
+
+            <details th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).PLANTILLA) or menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).INSCRIPCION)}"
+                     th:attr="open=${#strings.startsWith(rutaActual, '/grupos') or #strings.startsWith(rutaActual, '/escuela') ? 'open' : null}">
+                <summary>Grupos</summary>
+                <a th:href="@{/grupos}" th:classappend="${#strings.startsWith(rutaActual, '/grupos')} ? 'actual'">Grupos</a>
+                <a th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).PLANTILLA)}"
+                   th:href="@{/escuela/datos}" th:classappend="${#strings.startsWith(rutaActual, '/escuela/datos')} ? 'actual'">Datos escuela</a>
+            </details>
+
+            <details th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).EVALUACION) or menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).PLANTILLA)}"
+                     th:attr="open=${#strings.startsWith(rutaActual, '/asistencia') ? 'open' : null}">
+                <summary>Asistencia</summary>
+                <a th:href="@{/asistencia}" th:classappend="${#strings.startsWith(rutaActual, '/asistencia')} ? 'actual'">Lista del día</a>
+            </details>
+
+            <details th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).EVALUACION)}"
+                     th:attr="open=${#strings.startsWith(rutaActual, '/calificaciones') ? 'open' : null}">
+                <summary>Calificaciones</summary>
+                <a th:href="@{/calificaciones}" th:classappend="${#strings.startsWith(rutaActual, '/calificaciones')} ? 'actual'">Matriz</a>
+            </details>
+
+            <details th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).DOCUMENTOS)}"
+                     th:attr="open=${#strings.startsWith(rutaActual, '/documentos') ? 'open' : null}">
+                <summary>Documentos</summary>
+                <a th:href="@{/documentos}" th:classappend="${rutaActual == '/documentos'} ? 'actual'">Todos</a>
+                <a th:href="@{/documentos/kardex}" th:classappend="${#strings.startsWith(rutaActual, '/documentos/kardex')} ? 'actual'">Kardex</a>
+                <a th:href="@{/documentos/boletas}" th:classappend="${#strings.startsWith(rutaActual, '/documentos/boletas')} ? 'actual'">Boleta</a>
+                <a th:href="@{/documentos/constancias}" th:classappend="${#strings.startsWith(rutaActual, '/documentos/constancias')} ? 'actual'">Constancia</a>
+            </details>
+
+            <details th:if="${menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).USUARIOS)}"
+                     th:attr="open=${#strings.startsWith(rutaActual, '/usuarios') or rutaActual == '/perfiles' ? 'open' : null}">
+                <summary>Usuarios</summary>
+                <a th:href="@{/usuarios}" th:classappend="${#strings.startsWith(rutaActual, '/usuarios')} ? 'actual'">Cuentas</a>
+                <a th:href="@{/perfiles}" th:classappend="${rutaActual == '/perfiles'} ? 'actual'">Perfiles</a>
+            </details>
+
+            <details th:if="${esPlataforma or menuModulos.contains(T(mx.gob.controlescolar.acceso.dominio.Modulo).PLANES)}"
+                     th:attr="open=${#strings.startsWith(rutaActual, '/planes') or #strings.startsWith(rutaActual, '/calendarios') ? 'open' : null}">
+                <summary>Académico</summary>
+                <a th:href="@{/planes}" th:classappend="${#strings.startsWith(rutaActual, '/planes')} ? 'actual'">Planes</a>
+                <a th:if="${sesionEscuela}" th:href="@{/planes/programa}">Programa</a>
+                <a th:href="@{/calendarios}" th:classappend="${#strings.startsWith(rutaActual, '/calendarios')} ? 'actual'">Calendarios</a>
+                <a th:if="${sesionEscuela}" th:href="@{/calendarios/propio}">Calendario propio</a>
+            </details>
+        </nav>
+        <nav th:if="${esTutor}">
+            <a th:href="@{/padres}" class="actual">Consulta</a>
         </nav>
         <main th:replace="${cuerpo}"></main>
     </div>

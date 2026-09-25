@@ -10,12 +10,46 @@ body {
 }
 
 .marco {
-    max-width: 64rem;
+    max-width: 72rem;
     margin: 0 auto;
+}
+
+.cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e7e5e4;
+}
+
+.cabecera .marca a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.contexto {
+    margin: 0.15rem 0 0;
+    color: #57534e;
+}
+
+.sesion {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sesion form,
+.sesion button {
+    margin: 0;
 }
 
 header, nav, main {
     padding: 1.5rem;
+}
+
+.cabecera {
+    padding: 1rem 1.5rem;
 }
 
 .cuerpo {
@@ -24,8 +58,34 @@ header, nav, main {
 }
 
 nav {
-    width: 12rem;
+    width: 14rem;
+    flex: 0 0 14rem;
     border-right: 1px solid #e7e5e4;
+}
+
+nav details {
+    margin: 0.75rem 0 0.15rem;
+}
+
+nav summary {
+    cursor: pointer;
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+nav a {
+    color: #44403c;
+    text-decoration: none;
+}
+
+nav a.actual {
+    color: #1c1917;
+    font-weight: 650;
+}
+
+nav details a {
+    margin-left: 0.75rem;
 }
 
 .menu-titulo {
@@ -52,7 +112,7 @@ td, th {
 }
 
 header {
-    border-bottom: 1px solid #e7e5e4;
+    border-bottom: 0;
 }
 
 .marca {
@@ -66,4 +126,26 @@ h1 {
     font-size: 1.75rem;
     font-weight: 650;
     margin: 0 0 0.75rem;
+}
+
+button {
+    font: inherit;
+    cursor: pointer;
+}
+
+@media (max-width: 720px) {
+    .cuerpo {
+        flex-direction: column;
+    }
+
+    nav {
+        width: auto;
+        flex: none;
+        border-right: 0;
+        border-bottom: 1px solid #e7e5e4;
+    }
+
+    .cabecera {
+        align-items: flex-start;
+    }
 }

@@ -20,7 +20,9 @@ public class SeguridadConfig {
                         .requestMatchers("/planes/asignaturas").hasRole("PLATAFORMA")
                         .requestMatchers("/acceso", "/acceso/**", "/escuelas", "/escuelas/**", "/checklist")
                         .hasRole("SUPER")
-                        .anyRequest().authenticated())
+                        .requestMatchers("/padres", "/padres/**").hasRole("TUTOR")
+                        .requestMatchers("/panel").authenticated()
+                        .anyRequest().hasAnyRole("ESCUELA", "SUPER", "PLATAFORMA"))
                 .formLogin(form -> form
                         .loginPage("/entrar")
                         .defaultSuccessUrl("/panel", true)

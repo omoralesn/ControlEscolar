@@ -26,6 +26,9 @@ public class Grupo {
     private Programa programa;
     private String nombre;
     private int periodoOrden;
+    private String edificio;
+    private String aula;
+    private int capacidad;
     @ManyToOne
     @JoinColumn(name="generacion_id")
     private Generacion generacion;
@@ -35,6 +38,12 @@ public class Grupo {
         this.programa = programa;
         this.nombre = nombre;
         this.periodoOrden = periodoOrden;
+    }
+
+    public void ubicar(String edificio, String aula, int capacidad) {
+        this.edificio = edificio;
+        this.aula = aula;
+        this.capacidad = capacidad;
     }
 
     public void asignarGeneracion(Generacion generacion) {
@@ -64,6 +73,18 @@ public class Grupo {
     @Generated
     public int getPeriodoOrden() {
         return this.periodoOrden;
+    }
+
+    public String getEdificio() {
+        return this.edificio;
+    }
+
+    public String getAula() {
+        return this.aula;
+    }
+
+    public int getCapacidad() {
+        return this.capacidad;
     }
 
     @Generated

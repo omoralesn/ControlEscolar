@@ -39,10 +39,20 @@ public class PlanController {
             model.addAttribute("rectores", this.planes.listarRectores());
             return "academico/planes";
         }
+        this.perfiles.exigir(this.sesion.usuario().getId(), "PLANES_CONSULTAR");
+        return "academico/planes";
+    }
+
+    @GetMapping("/planes/programa")
+    public String programa(Model model) {
+        if (this.sesion.usuario() == null || !this.sesion.usuario().esEscuela()) {
+            throw new NegocioException("El programa lo configura la escuela");
+        }
         Long escuela = this.sesion.institucionId();
         this.perfiles.exigir(this.sesion.usuario().getId(), "PLANES_CONSULTAR");
+        model.addAttribute("versiones", this.planes.vigentes());
         model.addAttribute("programas", this.programas.deLaEscuela(escuela));
-        return "academico/planes";
+        return "academico/programa";
     }
 
     @PostMapping(value={"/planes/asignaturas"})
@@ -63,7 +73,7 @@ public class PlanController {
         Long escuela = this.sesion.institucionId();
         this.perfiles.exigir(this.sesion.usuario().getId(), "PLANES_CONFIGURAR");
         this.programas.adoptar(escuela, planVersionId, nombre);
-        return "redirect:/planes";
+        return "redirect:/planes/programa";
     }
 
     @PostMapping(value={"/planes/anexar"})
@@ -71,7 +81,7 @@ public class PlanController {
         Long escuela = this.sesion.institucionId();
         this.perfiles.exigir(this.sesion.usuario().getId(), "PLANES_CONFIGURAR");
         this.programas.anexar(escuela, programaId, clave, nombre);
-        return "redirect:/planes";
+        return "redirect:/planes/programa";
     }
 
     @PostMapping(value={"/planes/cerrar"})
@@ -79,14 +89,14 @@ public class PlanController {
         Long escuela = this.sesion.institucionId();
         this.perfiles.exigir(this.sesion.usuario().getId(), "PLANES_CERRAR");
         this.planes.cerrarVersion(escuela, planVersionId);
-        return "redirect:/planes";
+        return "redirect:/planes/programa";
     }
 
     @PostMapping(value={"/planes/esquema"})
     public String esquema(@RequestParam Long planVersionId, @RequestParam BigDecimal aprobatoria, @RequestParam int ordinarios, @RequestParam(defaultValue="false") boolean extraordinarios, @RequestParam(defaultValue="false") boolean segundoCurso) {
         this.perfiles.exigir(this.sesion.usuario().getId(), "PLANES_CONFIGURAR");
         this.planes.configurarEsquema(planVersionId, aprobatoria, ordinarios, extraordinarios, segundoCurso);
-        return "redirect:/planes";
+        return "redirect:/planes/programa";
     }
 
     private Map<Long, List<AsignaturaPlan>> asignaturasDe(List<PlanVersion> versiones) {

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Plantilla de páginas</h1>
+    <p>Habilitar un módulo abre estas páginas. No se agregan módulos fuera de la plantilla.</p>
+    <table>
+        <tr>
+            <th>Módulo</th>
+            <th>Página</th>
+            <th>Ruta</th>
+        </tr>
+        <tr th:each="pagina : ${paginas}">
+            <td th:text="${pagina.modulo}"></td>
+            <td th:text="${pagina.nombre}"></td>
+            <td th:text="${pagina.ruta}"></td>
+        </tr>
+    </table>
+</section>
+</body>
+</html>

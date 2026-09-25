@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Escuelas</h1>
+    <p>Capture la CCT y el nombre. No se piden nivel, entidad ni sostenimiento:
+        se calculan de la CCT y usted los revisa en el siguiente paso antes de confirmar.
+        Solo si el clasificador es <strong>D</strong> declare Federal o Desconcentrada.</p>
+    <form th:action="@{/acceso/escuelas/revisar}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>CCT
+            <input name="claveCct" required maxlength="10" style="text-transform: uppercase"
+                   pattern="[0-9A-Za-z]{10}" title="10 caracteres de la CCT">
+        </label>
+        <label>Nombre de la escuela <input name="nombre" required></label>
+        <label>Sostenimiento (solo clasificador D)
+            <select name="sostenimiento">
+                <option value="">No aplica</option>
+                <option value="FEDERAL">Federal</option>
+                <option value="DESCONCENTRADA">Desconcentrada</option>
+            </select>
+        </label>
+        <fieldset>
+            <legend>Módulos de la plantilla</legend>
+            <label th:each="modulo : ${modulos}">
+                <input type="checkbox" name="habilitados" th:value="${modulo}">
+                <span th:text="${modulo}"></span>
+            </label>
+        </fieldset>
+        <button type="submit">Revisar datos de la CCT</button>
+    </form>
+    <table>
+        <tr th:each="escuela : ${escuelas}">
+            <td th:text="${escuela.claveCct}"></td>
+            <td th:text="${escuela.nombre}"></td>
+            <td th:text="${escuela.nivel}"></td>
+            <td th:text="${escuela.particular} ? 'Particular' : 'Pública'"></td>
+            <td th:text="${escuela.activa} ? 'Activa' : 'Suspendida'"></td>
+            <td><a th:href="@{/acceso/escuelas/{id}(id=${escuela.id})}">Administrar</a></td>
+            <td>
+                <form th:action="@{/acceso/escuelas/{id}/suspender(id=${escuela.id})}" method="post">
+                    <input th:replace="~{comun/csrf :: token}">
+                    <button type="submit">Suspender</button>
+                </form>
+                <form th:action="@{/acceso/escuelas/{id}/activar(id=${escuela.id})}" method="post">
+                    <input th:replace="~{comun/csrf :: token}">
+                    <button type="submit">Activar</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+</section>
+</body>
+</html>

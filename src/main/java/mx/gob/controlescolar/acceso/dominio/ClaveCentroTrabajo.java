@@ -37,7 +37,11 @@ public record ClaveCentroTrabajo(String texto, String entidad, String entidadNom
             Map.entry("UT", "SUPERIOR"), Map.entry("UP", "SUPERIOR"));
 
     public static ClaveCentroTrabajo analizar(String clave, String sostenimientoDeclarado) {
-        if (clave == null || !clave.matches("[0-9]{2}[A-Z][A-Z]{2}[0-9]{4}[A-Z0-9]")) {
+        if (clave == null) {
+            throw new NegocioException("La CCT no tiene el formato de 10 caracteres");
+        }
+        clave = clave.trim().toUpperCase();
+        if (!clave.matches("[0-9]{2}[A-Z][A-Z]{2}[0-9]{4}[A-Z0-9]")) {
             throw new NegocioException("La CCT no tiene el formato de 10 caracteres");
         }
         String cuerpo = clave.substring(0, 9);

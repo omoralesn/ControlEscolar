@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Datos de la escuela</h1>
+    <p th:text="${escuela.nombre}"></p>
+    <h2>CCT (solo consulta)</h2>
+    <div th:each="centro : ${centros}">
+        <p th:text="'Clave: ' + ${centro.clave}"></p>
+        <p th:text="'Entidad: ' + ${centro.entidadClave} + ' · ' + ${centro.entidadNombre}"></p>
+        <p th:text="'Clasificador: ' + ${centro.clasificador} + ' · Sostenimiento: ' + ${centro.sostenimiento}"></p>
+        <p th:text="'Identificador de nivel: ' + ${centro.identificador} + ' · Nivel: ' + ${centro.nivel}"></p>
+        <p th:text="'Progresivo: ' + ${centro.progresivo}"></p>
+    </div>
+    <p th:if="${#lists.isEmpty(centros) and escuela.claveCct != null}" th:text="'CCT: ' + ${escuela.claveCct}"></p>
+    <p th:unless="${puedeEditar}">Tu perfil no permite actualizar domicilio ni contacto.</p>
+
+    <h2>Contacto</h2>
+    <p th:if="${escuela.contactoNombre != null}" th:text="'Contacto: ' + ${escuela.contactoNombre}"></p>
+    <form th:if="${puedeEditar}" th:action="@{/escuela/datos/contacto}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Nombre de contacto <input name="contactoNombre" th:value="${escuela.contactoNombre}"></label>
+        <label>Teléfono <input name="telefono" th:value="${escuela.telefono}"></label>
+        <label>Celular <input name="celular" th:value="${escuela.celular}"></label>
+        <label>Correo <input name="correo" type="email" th:value="${escuela.correo}"></label>
+        <button type="submit">Guardar contacto</button>
+    </form>
+
+    <h2>Domicilio</h2>
+    <div th:if="${escuela.domicilio != null}">
+        <p th:text="${escuela.domicilio.calle}"></p>
+        <p th:if="${escuela.domicilio.localidad != null}"
+           th:text="${escuela.domicilio.localidad.nombre + ' · CP ' + escuela.domicilio.codigoPostal
+                + ' · ' + escuela.domicilio.municipio.nombre + ', ' + escuela.domicilio.estado.nombre}"></p>
+    </div>
+    <form th:if="${puedeEditar}" method="get" th:action="@{/escuela/datos}">
+        <label>Código postal
+            <input name="cp" th:value="${cp}" maxlength="5" pattern="[0-9]{5}">
+        </label>
+        <button type="submit">Buscar localidades</button>
+    </form>
+    <form th:if="${puedeEditar}" th:action="@{/escuela/datos/domicilio}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <input type="hidden" name="codigoPostal" th:value="${cp}">
+        <label>Localidad
+            <select name="localidadId">
+                <option value="">Sin localidad</option>
+                <option th:each="localidad : ${localidadesCp}" th:value="${localidad.id}"
+                        th:text="${localidad.nombre + ' · ' + localidad.municipio.nombre + ', ' + localidad.municipio.estado.nombre}"></option>
+            </select>
+        </label>
+        <label>Calle <input name="calle" th:value="${escuela.domicilio != null ? escuela.domicilio.calle : ''}"></label>
+        <label>Número exterior <input name="numeroExterior" th:value="${escuela.domicilio != null ? escuela.domicilio.numeroExterior : ''}"></label>
+        <label>Número interior <input name="numeroInterior" th:value="${escuela.domicilio != null ? escuela.domicilio.numeroInterior : ''}"></label>
+        <label>Colonia <input name="colonia" th:value="${escuela.domicilio != null ? escuela.domicilio.colonia : ''}"></label>
+        <label>Referencia <input name="referencia" th:value="${escuela.domicilio != null ? escuela.domicilio.referencia : ''}"></label>
+        <button type="submit">Guardar domicilio</button>
+    </form>
+</section>
+</body>
+</html>

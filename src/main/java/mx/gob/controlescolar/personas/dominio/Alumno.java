@@ -41,6 +41,7 @@ public class Alumno {
     @ManyToOne
     @JoinColumn(name="generacion_id")
     private Generacion generacion;
+    private String matricula;
 
     public Alumno(Institucion institucion, String curp, String nombre, String apellidoPaterno, String apellidoMaterno) {
         this.institucion = institucion;
@@ -61,6 +62,10 @@ public class Alumno {
 
     public void asignarGeneracion(Generacion generacion) {
         this.generacion = generacion;
+    }
+
+    public void asignarMatricula(String matricula) {
+        this.matricula = matricula;
     }
 
     public void egresar() {
@@ -144,6 +149,10 @@ public class Alumno {
     @Generated
     public Generacion getGeneracion() {
         return this.generacion;
+    }
+
+    public String getMatricula() {
+        return this.matricula;
     }
 
     @Generated

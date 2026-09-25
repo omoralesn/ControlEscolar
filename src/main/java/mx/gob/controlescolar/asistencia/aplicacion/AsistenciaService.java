@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +36,32 @@ public class AsistenciaService {
         if (!presente) {
             avisos.publicar(institucionId, alumnoId, "Se registró una falta");
         }
+    }
+
+    @Transactional
+    public void registrarMatriz(Long institucionId, Long grupoId, LocalDate fecha, Map<Long, Boolean> presentes) {
+        modulos.exigir(institucionId, Modulo.EVALUACION);
+        ListaAsistencia lista = listas.findByInstitucionIdAndGrupoIdAndFecha(institucionId, grupoId, fecha)
+                .orElseGet(() -> listas.save(new ListaAsistencia(institucionId, grupoId, fecha)));
+        for (Map.Entry<Long, Boolean> celda : presentes.entrySet()) {
+            boolean presente = Boolean.TRUE.equals(celda.getValue());
+            var existente = asistencias.findByListaIdAndAlumnoId(lista.getId(), celda.getKey());
+            boolean nueva = existente.isEmpty();
+            AsistenciaAlumno marca = existente.orElseGet(() -> new AsistenciaAlumno(lista.getId(), celda.getKey(), presente));
+            boolean antes = marca.isPresente();
+            marca.setPresente(presente);
+            asistencias.save(marca);
+            if (!presente && (nueva || antes)) {
+                avisos.publicar(institucionId, celda.getKey(), "Se registró una falta");
+            }
+        }
+    }
+
+    public Map<Long, Boolean> deLaLista(Long institucionId, Long grupoId, LocalDate fecha) {
+        return listas.findByInstitucionIdAndGrupoIdAndFecha(institucionId, grupoId, fecha)
+                .map(lista -> asistencias.findByListaId(lista.getId()).stream()
+                        .collect(java.util.stream.Collectors.toMap(AsistenciaAlumno::getAlumnoId, AsistenciaAlumno::isPresente)))
+                .orElseGet(Map::of);
     }
 
     @Transactional

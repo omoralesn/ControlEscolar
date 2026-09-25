@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Calendario propio</h1>
+    <p>Media superior y superior publican su calendario, eventos y ventanas de captura.</p>
+    <form th:action="@{/calendarios}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Ciclo
+            <select name="cicloId">
+                <option th:each="ciclo : ${ciclos}" th:value="${ciclo.id}" th:text="${ciclo.nombre}"></option>
+            </select>
+        </label>
+        <label>Nivel
+            <select name="nivel">
+                <option value="MEDIA_SUPERIOR">Media superior</option>
+                <option value="SUPERIOR">Superior</option>
+            </select>
+        </label>
+        <label>Tipo de periodo <input name="tipoPeriodo" placeholder="cuatrimestre"></label>
+        <label>Días efectivos <input name="diasEfectivos" type="number"></label>
+        <button type="submit">Publicar calendario</button>
+    </form>
+    <form th:action="@{/calendarios/eventos}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Calendario
+            <select name="calendarioId">
+                <option th:each="calendario : ${propios}" th:value="${calendario.id}"
+                        th:text="${calendario.nivel + ' ' + calendario.ciclo.nombre}"></option>
+            </select>
+        </label>
+        <label>Tipo
+            <select name="tipo">
+                <option>INICIO_CURSOS</option>
+                <option>FIN_CURSOS</option>
+                <option>SUSPENSION</option>
+                <option>VACACIONES</option>
+                <option>RECESO</option>
+            </select>
+        </label>
+        <label>Nombre <input name="nombre" required></label>
+        <label>Inicio <input name="inicio" type="date" required></label>
+        <label>Fin <input name="fin" type="date" required></label>
+        <button type="submit">Agregar evento</button>
+    </form>
+    <form th:action="@{/calendarios/periodos}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Calendario
+            <select name="calendarioId">
+                <option th:each="calendario : ${propios}" th:value="${calendario.id}" th:text="${calendario.nivel}"></option>
+            </select>
+        </label>
+        <label>Periodo del plan <input name="periodoPlanId" type="number" required></label>
+        <label>Inicio <input name="inicio" type="date" required></label>
+        <label>Fin <input name="fin" type="date" required></label>
+        <button type="submit">Abrir periodo</button>
+    </form>
+    <form th:action="@{/calendarios/ventanas}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Periodo ciclo <input name="periodoCicloId" type="number" required></label>
+        <label>Momento <input name="momentoId" type="number" required></label>
+        <label>Captura desde <input name="capturaDesde" type="date" required></label>
+        <label>Captura hasta <input name="capturaHasta" type="date" required></label>
+        <label>Publicación <input name="publicacionDesde" type="date"></label>
+        <button type="submit">Configurar ventana</button>
+    </form>
+    <form th:action="@{/calendarios/cerrar}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Periodo ciclo <input name="periodoCicloId" type="number" required></label>
+        <button type="submit">Cerrar periodo</button>
+    </form>
+</section>
+</body>
+</html>

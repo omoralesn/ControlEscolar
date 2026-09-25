@@ -5,6 +5,12 @@
 <section th:fragment="contenido">
     <h1>Expediente</h1>
     <p th:text="${expediente.alumno.nombreCompleto + ' · ' + expediente.alumno.curp}"></p>
+    <p th:if="${expediente.alumno.matricula != null}" th:text="'Matrícula: ' + ${expediente.alumno.matricula}"></p>
+    <p th:if="${claveTutor != null}">
+        Acceso del tutor. Usuario: <strong th:text="${matriculaTutor}"></strong>.
+        Clave (se muestra solo ahora): <strong th:text="${claveTutor}"></strong>.
+        Entra en /entrar y puede cambiarla cuando quiera.
+    </p>
 
     <h2>Datos del alumno</h2>
     <form th:action="@{/alumnos/{id}/expediente/datos(id=${expediente.alumno.id})}" method="post">
@@ -112,6 +118,13 @@
             </label>
         </th:block>
         <button type="submit">Guardar responsable</button>
+    </form>
+    <h2>Acceso del tutor</h2>
+    <p>Entra con la matrícula del alumno y una clave que solo el tutor conoce. Si deja la clave vacía, se genera. Puede cambiarla aquí o el tutor desde su consulta.</p>
+    <form th:action="@{/alumnos/{id}/acceso-tutor(id=${expediente.alumno.id})}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Clave (opcional) <input name="claveTutor" autocomplete="off"></label>
+        <button type="submit">Generar o cambiar acceso</button>
     </form>
 </section>
 </body>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Bitácora de acceso</h1>
+    <p th:text="${escuela.nombre}"></p>
+    <table>
+        <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Acción</th>
+            <th>Actor</th>
+            <th>Afectado</th>
+            <th>Perfil</th>
+            <th>Detalle</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="evento : ${eventos}">
+            <td th:text="${evento.ocurridoEn}"></td>
+            <td th:text="${evento.accion}"></td>
+            <td th:text="${evento.actorLogin}"></td>
+            <td th:text="${evento.afectadoLogin}"></td>
+            <td th:text="${evento.perfilNombre}"></td>
+            <td th:text="${evento.detalle}"></td>
+        </tr>
+        </tbody>
+    </table>
+    <p th:if="${#lists.isEmpty(eventos)}">Sin eventos registrados.</p>
+</section>
+</body>
+</html>

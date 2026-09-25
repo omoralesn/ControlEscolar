@@ -8,8 +8,8 @@
     <table>
         <tr th:each="inscripcion : ${inscripciones}">
             <td th:text="${inscripcion.alumno.nombreCompleto}"></td>
+            <td><a th:href="@{/documentos/historial(alumnoId=${inscripcion.alumno.id},planVersionId=${inscripcion.planVersion.id})}">Kardex</a></td>
             <td><a th:href="@{/documentos/boleta(alumnoId=${inscripcion.alumno.id},planVersionId=${inscripcion.planVersion.id})}">Boleta</a></td>
-            <td><a th:href="@{/documentos/historial(alumnoId=${inscripcion.alumno.id},planVersionId=${inscripcion.planVersion.id})}">Historial</a></td>
             <td><a th:href="@{/documentos/constancia(alumnoId=${inscripcion.alumno.id},planVersionId=${inscripcion.planVersion.id})}">Constancia</a></td>
         </tr>
     </table>

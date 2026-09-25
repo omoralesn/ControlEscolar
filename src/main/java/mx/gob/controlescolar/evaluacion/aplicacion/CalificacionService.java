@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -178,6 +179,29 @@ public class CalificacionService {
                         asignatura, periodoOrden, momentoId, null, null, false));
         calificacion.setFaltas(faltas);
         return calificaciones.save(calificacion);
+    }
+
+    /** Captura de básica: una celda por alumno y asignatura en el mismo momento. Clave v_alumno_asignatura o f_alumno_asignatura. */
+    @Transactional
+    public void capturarMatriz(Long institucionId, int periodoOrden, Long momentoId, Map<String, String> celdas) {
+        for (Map.Entry<String, String> celda : celdas.entrySet()) {
+            String[] partes = celda.getKey().split("_", 3);
+            if (partes.length != 3) {
+                continue;
+            }
+            Long alumnoId = Long.valueOf(partes[1]);
+            String asignatura = partes[2];
+            String texto = celda.getValue() == null ? "" : celda.getValue().trim();
+            if (texto.isEmpty()) {
+                continue;
+            }
+            if (partes[0].equals("v")) {
+                capturar(institucionId, alumnoId, asignatura, periodoOrden, momentoId,
+                        new BigDecimal(texto), null, null, false);
+            } else if (partes[0].equals("f")) {
+                registrarFaltas(institucionId, alumnoId, asignatura, periodoOrden, momentoId, Integer.parseInt(texto));
+            }
+        }
     }
 
     public List<Calificacion> delAlumno(Long alumnoId, Long planVersionId) {

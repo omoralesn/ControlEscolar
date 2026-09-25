@@ -4,14 +4,52 @@
 <body>
 <section th:fragment="contenido">
     <h1>Calificaciones</h1>
-    <p>La captura usa el momento del esquema del alumno. Preescolar guarda observación. El extraordinario pide acta.</p>
-    <table>
-        <tr th:each="momento : ${momentos}">
-            <td th:text="${momento.id}"></td>
-            <td th:text="${momento.nombre}"></td>
-            <td th:text="${momento.tipo}"></td>
-        </tr>
-    </table>
+    <p>Matriz de básica: renglón por alumno, columna por asignatura. El periodo es el del grupo.
+        La celda superior es la calificación y la inferior las faltas de la materia.</p>
+
+    <form method="get" th:action="@{/calificaciones}">
+        <label>Grupo
+            <select name="grupoId">
+                <option th:each="grupo : ${grupos}" th:value="${grupo.id}"
+                        th:text="${grupo.nombre + ' · ' + (grupo.edificio != null ? grupo.edificio + ' ' : '') + (grupo.aula != null ? grupo.aula : '')}"
+                        th:selected="${grupoId != null and grupo.id == grupoId}"></option>
+            </select>
+        </label>
+        <label>Momento
+            <select name="momentoId">
+                <option th:each="momento : ${momentos}" th:value="${momento.id}" th:text="${momento.nombre}"
+                        th:selected="${momentoId != null and momento.id == momentoId}"></option>
+            </select>
+        </label>
+        <button type="submit">Abrir matriz</button>
+    </form>
+
+    <form th:if="${grupo != null and momentoId != null}" th:action="@{/calificaciones/matriz}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <input type="hidden" name="grupoId" th:value="${grupo.id}">
+        <input type="hidden" name="momentoId" th:value="${momentoId}">
+        <p th:text="'Periodo ' + ${grupo.periodoOrden} + ' · capacidad ' + ${grupo.capacidad}"></p>
+        <table>
+            <tr>
+                <th>Alumno</th>
+                <th th:each="materia : ${materias}" th:text="${materia.clave + ' ' + materia.nombre}"></th>
+            </tr>
+            <tr th:each="fila : ${filas}">
+                <td th:text="${fila.alumno.nombreCompleto}"></td>
+                <td th:each="materia : ${materias}">
+                    <input th:name="|v_${fila.alumno.id}_${materia.clave}|" placeholder="Calif."
+                           th:value="${capturado[fila.alumno.id + '_' + materia.clave]?.valor}">
+                    <input th:name="|f_${fila.alumno.id}_${materia.clave}|" placeholder="Faltas" type="number" min="0"
+                           th:value="${capturado[fila.alumno.id + '_' + materia.clave]?.faltas}">
+                </td>
+            </tr>
+        </table>
+        <p th:if="${#lists.isEmpty(filas)}">El grupo no tiene alumnos inscritos.</p>
+        <button type="submit" th:if="${not #lists.isEmpty(filas)}">Guardar matriz</button>
+    </form>
+
+    <h2>Captura suelta</h2>
+    <p>Para extraordinario, acta u observación de preescolar.</p>
     <form th:action="@{/calificaciones}" method="post">
         <input th:replace="~{comun/csrf :: token}">
         <label>Alumno <input name="alumnoId" type="number" required></label>
@@ -23,15 +61,6 @@
         <label>Acta <input name="acta"></label>
         <label>Complementaria <input name="complementaria" type="checkbox" value="true"></label>
         <button type="submit">Capturar</button>
-    </form>
-    <form th:action="@{/calificaciones/faltas}" method="post">
-        <input th:replace="~{comun/csrf :: token}">
-        <label>Alumno <input name="alumnoId" type="number" required></label>
-        <label>Asignatura <input name="asignatura" required></label>
-        <label>Periodo <input name="periodoOrden" type="number" min="1" required></label>
-        <label>Momento <input name="momentoId" type="number" required></label>
-        <label>Faltas de la materia <input name="faltas" type="number" min="0" required></label>
-        <button type="submit">Registrar faltas</button>
     </form>
 </section>
 </body>

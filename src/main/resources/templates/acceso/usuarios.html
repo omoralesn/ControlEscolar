@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Usuarios</h1>
+    <p th:text="${escuela.nombre}"></p>
+    <p>Trabajo habitual del super: dar de alta uno o varios usuarios de registro (p. ej. Administrador escolar).
+        En casos particulares también puede crear otros perfiles (docente, administrativo, etc.);
+        esas altas quedan en bitácora.</p>
+
+    <h2>Alta de usuario</h2>
+    <form th:action="@{/acceso/usuarios}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <input type="hidden" name="escuelaId" th:value="${escuelaId}">
+        <label>Nombre <input name="nombre" required></label>
+        <label>Usuario <input name="login" required></label>
+        <label>Contraseña <input name="clave" type="password" required></label>
+        <label>Perfil
+            <select name="perfilId" required>
+                <option value="" disabled selected>Seleccione</option>
+                <option th:each="perfil : ${perfiles}" th:value="${perfil.id}" th:text="${perfil.nombre}"></option>
+            </select>
+        </label>
+        <label>
+            <input type="checkbox" name="excepcional" value="true">
+            Alta excepcional (otro perfil distinto a los primeros de registro)
+        </label>
+        <button type="submit">Crear usuario</button>
+    </form>
+
+    <h2>Usuarios existentes</h2>
+    <table>
+        <tr>
+            <th>Usuario</th>
+            <th>Nombre</th>
+            <th>Rol</th>
+            <th>Perfil</th>
+            <th>Cuenta</th>
+            <th>Bloqueo</th>
+            <th>Credencial</th>
+            <th></th>
+        </tr>
+        <tr th:each="fila : ${usuarios}">
+            <td th:text="${fila.usuario.login}"></td>
+            <td th:text="${fila.usuario.nombre}"></td>
+            <td th:text="${fila.usuario.alcance}"></td>
+            <td th:text="${fila.perfilNombre}"></td>
+            <td th:text="${fila.usuario.enabled and fila.usuario.accountNonExpired} ? 'Habilitada' : 'Deshabilitada'"></td>
+            <td th:text="${fila.usuario.accountNonLocked} ? 'Libre' : 'Bloqueada'"></td>
+            <td th:text="${fila.usuario.credentialsNonExpired} ? 'Vigente' : 'Vencida'"></td>
+            <td>
+                <form th:action="@{/acceso/usuarios/perfil}" method="post">
+                    <input th:replace="~{comun/csrf :: token}">
+                    <input type="hidden" name="escuelaId" th:value="${escuelaId}">
+                    <input type="hidden" name="usuarioId" th:value="${fila.usuario.id}">
+                    <label>Perfil
+                        <select name="perfilId">
+                            <option th:each="perfil : ${perfiles}" th:value="${perfil.id}"
+                                    th:text="${perfil.nombre}" th:selected="${perfil.id == fila.perfilId}"></option>
+                        </select>
+                    </label>
+                    <button type="submit">Reasignar</button>
+                </form>
+                <form th:action="@{/acceso/usuarios/vigencia}" method="post">
+                    <input th:replace="~{comun/csrf :: token}">
+                    <input type="hidden" name="usuarioId" th:value="${fila.usuario.id}">
+                    <input type="hidden" name="escuelaId" th:value="${escuelaId}">
+                    <label>Desde <input name="vigenteDesde" type="date" th:value="${fila.usuario.vigenteDesde}"></label>
+                    <label>Hasta <input name="vigenteHasta" type="date" th:value="${fila.usuario.vigenteHasta}"></label>
+                    <button type="submit">Guardar vigencia</button>
+                </form>
+                <form th:action="@{/acceso/usuarios/{id}/suspender(id=${fila.usuario.id})}" method="post">
+                    <input th:replace="~{comun/csrf :: token}">
+                    <input type="hidden" name="escuelaId" th:value="${escuelaId}">
+                    <button type="submit">Suspender usuario</button>
+                </form>
+                <form th:action="@{/acceso/usuarios/{id}/activar(id=${fila.usuario.id})}" method="post">
+                    <input th:replace="~{comun/csrf :: token}">
+                    <input type="hidden" name="escuelaId" th:value="${escuelaId}">
+                    <button type="submit">Activar usuario</button>
+                </form>
+                <form th:action="@{/acceso/usuarios/{id}/bloquear(id=${fila.usuario.id})}" method="post">
+                    <input th:replace="~{comun/csrf :: token}">
+                    <input type="hidden" name="escuelaId" th:value="${escuelaId}">
+                    <button type="submit">Bloquear</button>
+                </form>
+                <form th:action="@{/acceso/usuarios/{id}/desbloquear(id=${fila.usuario.id})}" method="post">
+                    <input th:replace="~{comun/csrf :: token}">
+                    <input type="hidden" name="escuelaId" th:value="${escuelaId}">
+                    <button type="submit">Desbloquear</button>
+                </form>
+                <form th:action="@{/acceso/usuarios/credencial}" method="post">
+                    <input th:replace="~{comun/csrf :: token}">
+                    <input type="hidden" name="usuarioId" th:value="${fila.usuario.id}">
+                    <input type="hidden" name="escuelaId" th:value="${escuelaId}">
+                    <label>Nueva credencial <input name="clave" type="password" minlength="6" required></label>
+                    <button type="submit">Reponer credencial</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+</section>
+</body>
+</html>

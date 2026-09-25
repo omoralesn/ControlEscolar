@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1 th:text="${titulo}">Documento</h1>
+    <p><a th:href="@{/documentos}">Volver a documentos</a></p>
+    <form method="get">
+        <label>Grupo
+            <select name="grupoId">
+                <option value="">Todos</option>
+                <option th:each="grupo : ${grupos}" th:value="${grupo.id}" th:text="${grupo.nombre}"
+                        th:selected="${grupoId != null and grupo.id == grupoId}"></option>
+            </select>
+        </label>
+        <button type="submit">Filtrar</button>
+    </form>
+    <table>
+        <tr>
+            <th>Matrícula</th>
+            <th>Alumno</th>
+            <th>Grupo</th>
+            <th></th>
+        </tr>
+        <tr th:each="inscripcion : ${inscripciones}">
+            <td th:text="${inscripcion.alumno.matricula}"></td>
+            <td th:text="${inscripcion.alumno.nombreCompleto}"></td>
+            <td th:text="${inscripcion.grupo.nombre}"></td>
+            <td>
+                <a th:href="@{/documentos/{tipo}(tipo=${emision},alumnoId=${inscripcion.alumno.id},planVersionId=${inscripcion.planVersion.id})}"
+                   th:text="'Emitir ' + ${titulo}"></a>
+            </td>
+        </tr>
+    </table>
+    <p th:if="${#lists.isEmpty(inscripciones)}">No hay alumnos en este filtro.</p>
+</section>
+</body>
+</html>

@@ -41,6 +41,8 @@ public class AlumnoService {
             throw new NegocioException("El grupo no pertenece a la escuela");
         }
         Alumno alumno = (Alumno)this.alumnos.save(new Alumno((Institucion)this.instituciones.findById(institucionId).orElseThrow(), curp, nombre, apellidoPaterno, apellidoMaterno));
+        alumno.asignarMatricula(String.format("A%06d", alumno.getId()));
+        this.exigirCupo(grupo);
         this.inscripciones.save(new Inscripcion(institucionId, alumno, grupo, grupo.getPrograma().getPlanVersion(), this.anexoVigente(grupo.getPrograma().getId())));
         return alumno;
     }
@@ -94,6 +96,7 @@ public class AlumnoService {
         if (!grupo.getInstitucion().getId().equals(institucionId)) {
             throw new NegocioException("El grupo no pertenece a la escuela");
         }
+        this.exigirCupo(grupo);
         inscripcion.cambiarGrupo(grupo);
         this.movimientos.save(new MovimientoAlumno(institucionId, alumnoId, "CAMBIO_GRUPO", grupo.getNombre()));
     }
@@ -142,6 +145,16 @@ public class AlumnoService {
 
     private Inscripcion inscripcionActiva(Long alumnoId) {
         return this.inscripciones.findByAlumnoIdAndHistoricaFalse(alumnoId).orElseThrow(() -> new NegocioException("El alumno no tiene inscripci\u00f3n activa"));
+    }
+
+    private void exigirCupo(Grupo grupo) {
+        if (grupo.getCapacidad() <= 0) {
+            return;
+        }
+        long ocupados = this.inscripciones.findByGrupoIdAndHistoricaFalse(grupo.getId()).size();
+        if (ocupados >= grupo.getCapacidad()) {
+            throw new NegocioException("El grupo " + grupo.getNombre() + " ya alcanzó su capacidad de " + grupo.getCapacidad());
+        }
     }
 
     private void cerrarInscripcion(Long alumnoId) {

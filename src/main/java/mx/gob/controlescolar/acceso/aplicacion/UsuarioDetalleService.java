@@ -14,11 +14,14 @@ import lombok.RequiredArgsConstructor;
 public class UsuarioDetalleService implements UserDetailsService {
 
     private final UsuarioRepositorio usuarios;
+    private final PerfilService perfiles;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return usuarios.findByLogin(username)
+        Usuario usuario = usuarios.findByLogin(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
+        usuario.conceder(perfiles.codigosDe(usuario.getId()));
+        return usuario;
     }
 
     public Usuario actual(String login) {

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Catálogo de perfiles</h1>
+    <p>Las plantillas las define el super una vez. Cada escuela las recibe y las acata.
+        Si una escuela es distinta, el ajuste se hace solo en esa escuela.</p>
+
+    <h2>Nueva plantilla</h2>
+    <form th:action="@{/acceso/perfiles/plantilla}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Nombre <input name="nombre" required></label>
+        <fieldset>
+            <legend>Permisos</legend>
+            <label th:each="permiso : ${permisos}">
+                <input type="checkbox" name="codigos" th:value="${permiso.codigo}">
+                <span th:text="${T(mx.gob.controlescolar.acceso.dominio.PermisoCatalogo).etiqueta(permiso.codigo)}"></span>
+            </label>
+        </fieldset>
+        <button type="submit">Guardar plantilla</button>
+    </form>
+
+    <h2>Plantillas</h2>
+    <table>
+        <tr th:each="plantilla : ${plantillas}">
+            <td th:text="${plantilla.nombre}"></td>
+        </tr>
+    </table>
+
+    <h2>Aplicar en una escuela</h2>
+    <table>
+        <tr th:each="escuela : ${escuelas}">
+            <td th:text="${escuela.claveCct}"></td>
+            <td th:text="${escuela.nombre}"></td>
+            <td><a th:href="@{/acceso/escuelas/{id}/perfiles(id=${escuela.id})}">Perfiles de la escuela</a></td>
+        </tr>
+    </table>
+</section>
+</body>
+</html>

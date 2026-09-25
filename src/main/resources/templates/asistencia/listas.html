@@ -4,23 +4,43 @@
 <body>
 <section th:fragment="contenido">
     <h1>Asistencia</h1>
-    <form th:action="@{/asistencia}" method="post">
-        <input th:replace="~{comun/csrf :: token}">
+    <p>Lista del grupo en un solo paso: renglón por alumno. Marcado es presente; sin marca es falta.</p>
+    <form method="get" th:action="@{/asistencia}">
         <label>Grupo
             <select name="grupoId">
-                <option th:each="grupo : ${grupos}" th:value="${grupo.id}" th:text="${grupo.nombre}"></option>
+                <option th:each="grupo : ${grupos}" th:value="${grupo.id}" th:text="${grupo.nombre}"
+                        th:selected="${grupoId != null and grupo.id == grupoId}"></option>
             </select>
         </label>
-        <label>Fecha <input name="fecha" type="date" required></label>
-        <label>Alumno <input name="alumnoId" type="number" required></label>
-        <label>Presente <input name="presente" type="checkbox" value="true"></label>
-        <button type="submit">Registrar lista</button>
+        <label>Fecha <input name="fecha" type="date" th:value="${fecha}" required></label>
+        <button type="submit">Abrir lista</button>
     </form>
-    <form method="get" th:action="@{/asistencia}">
-        <label>Consultar alumno <input name="alumnoId" type="number"></label>
-        <button type="submit">Ver faltas</button>
+
+    <form th:if="${filas != null}" th:action="@{/asistencia}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <input type="hidden" name="grupoId" th:value="${grupoId}">
+        <input type="hidden" name="fecha" th:value="${fecha}">
+        <table>
+            <tr>
+                <th>Alumno</th>
+                <th>Matrícula</th>
+                <th>Presente</th>
+            </tr>
+            <tr th:each="fila : ${filas}">
+                <td th:text="${fila.alumno.nombreCompleto}"></td>
+                <td th:text="${fila.alumno.matricula}"></td>
+                <td>
+                    <input type="hidden" name="alumnoId" th:value="${fila.alumno.id}">
+                    <input type="checkbox" th:name="|p_${fila.alumno.id}|" value="true"
+                           th:checked="${marcas[fila.alumno.id] == null or marcas[fila.alumno.id]}">
+                </td>
+            </tr>
+        </table>
+        <p th:if="${#lists.isEmpty(filas)}">El grupo no tiene alumnos inscritos.</p>
+        <button type="submit" th:if="${not #lists.isEmpty(filas)}">Guardar lista</button>
     </form>
-    <p th:if="${faltasAlumno != null}" th:text="'Faltas del alumno: ' + ${faltasAlumno}"></p>
+
+    <h2>Falta del profesor</h2>
     <form th:action="@{/asistencia/profesor}" method="post">
         <input th:replace="~{comun/csrf :: token}">
         <label>Profesor
@@ -31,11 +51,6 @@
         <label>Fecha <input name="fecha" type="date" required></label>
         <button type="submit">Registrar falta del profesor</button>
     </form>
-    <form method="get" th:action="@{/asistencia}">
-        <label>Consultar profesor <input name="profesorId" type="number"></label>
-        <button type="submit">Ver faltas del profesor</button>
-    </form>
-    <p th:if="${faltasProfesor != null}" th:text="'Faltas del profesor: ' + ${faltasProfesor}"></p>
 </section>
 </body>
 </html>

@@ -17,6 +17,7 @@ import mx.gob.controlescolar.evaluacion.aplicacion.CalificacionService;
 import mx.gob.controlescolar.inscripcion.aplicacion.GrupoService;
 import mx.gob.controlescolar.inscripcion.dominio.Grupo;
 import mx.gob.controlescolar.padres.aplicacion.PadreService;
+import mx.gob.controlescolar.personas.aplicacion.AccesoTutorService;
 import mx.gob.controlescolar.personas.aplicacion.AlumnoService;
 import mx.gob.controlescolar.personas.aplicacion.DictamenService;
 import mx.gob.controlescolar.personas.aplicacion.TrayectoriaService;
@@ -63,6 +64,9 @@ class OperacionEscolarTest {
     @Autowired AlumnoTutorRepositorio vinculos;
     @Autowired UsuarioRepositorio usuarios;
     @Autowired PasswordEncoder encoder;
+    @Autowired mx.gob.controlescolar.personas.aplicacion.ExpedienteService expedientes;
+    @Autowired AccesoTutorService accesosTutor;
+    @Autowired mx.gob.controlescolar.asistencia.aplicacion.AsistenciaService asistencia;
 
     @Test
     void basicaNoCreaCalendarioYMediaSi() {
@@ -127,18 +131,18 @@ class OperacionEscolarTest {
 
     @Test
     void dictamenCctPromocionCreditosYKardex() {
-        assertThrows(NegocioException.class, () -> escuelas.altaNivel("Sin cct", null, true, "MEDIA_SUPERIOR",
-                "PARTICULAR", EnumSet.allOf(Modulo.class), "sincct", "x"));
-        assertThrows(NegocioException.class, () -> escuelas.altaNivel("Cct mala", "XXXX", true, "MEDIA_SUPERIOR",
-                "PARTICULAR", EnumSet.allOf(Modulo.class), "cctmala", "x"));
-        Institucion media = escuelas.altaNivel("Bachilleres", "15PBH0001T", true, "MEDIA_SUPERIOR", "PARTICULAR",
-                EnumSet.allOf(Modulo.class), "bach", "x");
-        Institucion superior = escuelas.altaNivel("Universidad", null, true, "SUPERIOR", null,
-                EnumSet.allOf(Modulo.class), "uni", "x");
+        assertThrows(NegocioException.class, () -> escuelas.altaNivel("Sin cct", null, "MEDIA_SUPERIOR",
+                "PARTICULAR", EnumSet.allOf(Modulo.class), "sincct", "x", null, null));
+        assertThrows(NegocioException.class, () -> escuelas.altaNivel("Cct mala", "XXXX", "MEDIA_SUPERIOR",
+                "PARTICULAR", EnumSet.allOf(Modulo.class), "cctmala", "x", null, null));
+        Institucion media = escuelas.altaNivel("Bachilleres", "15PBH0001T", "MEDIA_SUPERIOR", "PARTICULAR",
+                EnumSet.allOf(Modulo.class), "bach", "x", null, null);
+        Institucion superior = escuelas.altaNivel("Universidad", "15PUN0001S", "SUPERIOR", "PARTICULAR",
+                EnumSet.allOf(Modulo.class), "uni", "x", null, null);
         assertEquals("SUPERIOR", superior.getNivel());
 
-        Institucion primaria = escuelas.altaNivel("Primaria CCT", "15DPR0001Y", false, "PRIMARIA", "FEDERAL",
-                EnumSet.allOf(Modulo.class), "pricct", "x");
+        Institucion primaria = escuelas.altaNivel("Primaria CCT", "15DPR0001Y", "PRIMARIA", "FEDERAL",
+                EnumSet.allOf(Modulo.class), "pricct", "x", null, null);
         Institucion otra = escuelas.alta("Secundaria CCT", null, true, EnumSet.allOf(Modulo.class), "seccct", "x");
         centros.compartirPlantel(otra.getId(), primaria.getPlantel().getId());
         centros.registrar(otra.getId(), "15PES0001W", "PARTICULAR", "Secundaria");
@@ -234,6 +238,49 @@ class OperacionEscolarTest {
         assertEquals("EGRESADO", alumnos.listar(escuela.getId()).get(0).getEstatus());
         alumnos.reinscribir(escuela.getId(), alumno.getId());
         assertEquals("ACTIVO", alumnos.listar(escuela.getId()).get(0).getEstatus());
+    }
+
+    @Test
+    void elGrupoNoAceptaMasAlumnosQueSuCapacidad() {
+        Institucion escuela = escuelas.alta("Cupo", null, false, EnumSet.of(Modulo.ALUMNOS, Modulo.INSCRIPCION, Modulo.PLANES),
+                "cupo", "x");
+        PlanVersion plan = planes.publicarConMomentos("PRIMARIA", "Cupo", "BIMESTRAL",
+                BigDecimal.ZERO, BigDecimal.TEN, new BigDecimal("6"), false, false, 2,
+                List.of(new PlanService.DefinicionMomento("Parcial", TipoMomento.ORDINARIO)));
+        var programa = programas.adoptar(escuela.getId(), plan.getId(), "Prim");
+        Grupo grupo = grupos.registrar(escuela.getId(), programa.getId(), "1A", 1, "Norte", "12", 1);
+        assertEquals("Norte", grupo.getEdificio());
+        assertEquals("12", grupo.getAula());
+        alumnos.registrar(escuela.getId(), grupo.getId(), "CURP150101HDFABC15", "Luz", "Ríos", null);
+        assertThrows(NegocioException.class, () -> alumnos.registrar(escuela.getId(), grupo.getId(),
+                "CURP150102HDFABC16", "Leo", "Ríos", null));
+    }
+
+    @Test
+    void tutorEntraConMatriculaYLaListaEsDelGrupo() {
+        Institucion escuela = escuelas.alta("Tutor", null, false,
+                EnumSet.of(Modulo.ALUMNOS, Modulo.INSCRIPCION, Modulo.PLANES, Modulo.PADRES, Modulo.EVALUACION),
+                "tutoracc", "x");
+        PlanVersion plan = planes.publicarConMomentos("PRIMARIA", "Tutor", "BIMESTRAL",
+                BigDecimal.ZERO, BigDecimal.TEN, new BigDecimal("6"), false, false, 2,
+                List.of(new PlanService.DefinicionMomento("Parcial", TipoMomento.ORDINARIO)));
+        var programa = programas.adoptar(escuela.getId(), plan.getId(), "Prim");
+        Grupo grupo = grupos.registrar(escuela.getId(), programa.getId(), "1A", 1, "Sur", "1", 30);
+        Alumno alumno = alumnos.registrar(escuela.getId(), grupo.getId(), "CURP160101HDFABC17", "Nora", "Gil", null);
+        assertNotNull(alumno.getMatricula());
+        expedientes.guardarResponsable(escuela.getId(), alumno.getId(),
+                new mx.gob.controlescolar.personas.aplicacion.ExpedienteService.DatosResponsable(
+                        null, "Ana", "Gil", null, "Madre", "5511111111", null, null, null, null, true, null));
+        var acceso = accesosTutor.definir(escuela.getId(), alumno.getId(), null);
+        assertEquals(alumno.getMatricula(), acceso.matricula());
+        assertEquals(8, acceso.clave().length());
+        accesosTutor.definir(escuela.getId(), alumno.getId(), "clave-tutor");
+        var usuario = usuarios.findByLogin(alumno.getMatricula()).orElseThrow();
+        assertTrue(usuario.esTutor());
+        assertTrue(encoder.matches("clave-tutor", usuario.getPassword()));
+
+        asistencia.registrarMatriz(escuela.getId(), grupo.getId(), LocalDate.now(), java.util.Map.of(alumno.getId(), false));
+        assertEquals(1, asistencia.faltasAlumno(alumno.getId()));
     }
 
     private Usuario usuario(Institucion escuela) {

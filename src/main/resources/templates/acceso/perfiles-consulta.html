@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Perfiles</h1>
+    <p>Consulta de perfiles definidos por el super. La escuela no puede crear ni modificar perfiles.</p>
+    <table>
+        <tr th:each="perfil : ${perfiles}">
+            <td th:text="${perfil.nombre}"></td>
+        </tr>
+    </table>
+</section>
+</body>
+</html>

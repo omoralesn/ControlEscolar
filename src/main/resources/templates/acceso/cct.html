@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>CCT</h1>
+    <p th:text="${escuela.nombre}"></p>
+    <p>Tras capturar, los datos derivados solo se consultan; no se modifican.</p>
+    <form th:action="@{/acceso/cct}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <input type="hidden" name="institucionId" th:value="${escuelaId}">
+        <label>CCT <input name="clave" required maxlength="10" style="text-transform: uppercase"></label>
+        <label>Sostenimiento (solo clasificador D)
+            <select name="sostenimiento">
+                <option value="">No aplica</option>
+                <option value="FEDERAL">Federal</option>
+                <option value="DESCONCENTRADA">Desconcentrada</option>
+            </select>
+        </label>
+        <label>Nombre del centro <input name="nombre" required></label>
+        <button type="submit">Asignar CCT</button>
+    </form>
+    <table>
+        <thead>
+        <tr>
+            <th>Clave</th>
+            <th>Entidad</th>
+            <th>Clasificador</th>
+            <th>Sostenimiento</th>
+            <th>Identificador</th>
+            <th>Nivel</th>
+            <th>Progresivo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="centro : ${centros}">
+            <td th:text="${centro.clave}"></td>
+            <td th:text="${centro.entidadClave + ' · ' + centro.entidadNombre}"></td>
+            <td th:text="${centro.clasificador}"></td>
+            <td th:text="${centro.sostenimiento}"></td>
+            <td th:text="${centro.identificador}"></td>
+            <td th:text="${centro.nivel}"></td>
+            <td th:text="${centro.progresivo}"></td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</body>
+</html>

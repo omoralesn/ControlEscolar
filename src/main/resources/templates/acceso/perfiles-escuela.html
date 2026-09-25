@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Perfiles de la escuela</h1>
+    <p th:text="${escuela.nombre}"></p>
+    <p>Aplique una plantilla del catálogo. Si esta escuela necesita algo distinto, cree un perfil solo aquí.</p>
+
+    <form th:action="@{/acceso/perfiles/aplicar}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <input type="hidden" name="escuelaId" th:value="${escuelaId}">
+        <label>Plantilla
+            <select name="plantillaId" required>
+                <option value="" disabled selected>Seleccione</option>
+                <option th:each="plantilla : ${plantillas}" th:value="${plantilla.id}" th:text="${plantilla.nombre}"></option>
+            </select>
+        </label>
+        <button type="submit">Aplicar a esta escuela</button>
+    </form>
+
+    <h2>Perfil propio de esta escuela</h2>
+    <form th:action="@{/acceso/perfiles}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <input type="hidden" name="escuelaId" th:value="${escuelaId}">
+        <label>Nombre <input name="nombre" required></label>
+        <fieldset>
+            <legend>Permisos de módulos activos</legend>
+            <label th:each="permiso : ${disponibles}">
+                <input type="checkbox" name="codigos" th:value="${permiso.codigo}">
+                <span th:text="${T(mx.gob.controlescolar.acceso.dominio.PermisoCatalogo).etiqueta(permiso.codigo)}"></span>
+            </label>
+        </fieldset>
+        <button type="submit">Crear perfil de esta escuela</button>
+    </form>
+
+    <table>
+        <tr th:each="perfil : ${perfiles}">
+            <td th:text="${perfil.nombre}"></td>
+        </tr>
+    </table>
+</section>
+</body>
+</html>

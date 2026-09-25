@@ -28,4 +28,8 @@ public class AsistenciaAlumno {
         this.alumnoId = alumnoId;
         this.presente = presente;
     }
+
+    public void setPresente(boolean presente) {
+        this.presente = presente;
+    }
 }

@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface PerfilRepositorio extends JpaRepository<Perfil, Long> {
     List<Perfil> findByInstitucionId(Long institucionId);
+
+    java.util.Optional<Perfil> findByInstitucionIdAndNombre(Long institucionId, String nombre);
 }

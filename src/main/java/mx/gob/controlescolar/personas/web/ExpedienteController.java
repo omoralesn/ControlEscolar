@@ -27,6 +27,7 @@ public class ExpedienteController {
     private final EstadoRepositorio estados;
     private final MunicipioRepositorio municipios;
     private final LocalidadRepositorio localidades;
+    private final mx.gob.controlescolar.personas.aplicacion.AccesoTutorService accesosTutor;
 
     @GetMapping(value={"/alumnos/{id}/expediente"})
     public String ver(@PathVariable Long id, Model model) {
@@ -70,8 +71,18 @@ public class ExpedienteController {
         return "personas/apoyo911";
     }
 
+    @PostMapping("/alumnos/{id}/acceso-tutor")
+    public String accesoTutor(@PathVariable Long id, @RequestParam(required = false) String claveTutor,
+                              org.springframework.web.servlet.mvc.support.RedirectAttributes redirect) {
+        this.perfiles.exigir(this.sesion.usuario().getId(), "ALUMNOS_CAPTURAR");
+        var acceso = this.accesosTutor.definir(this.sesion.institucionId(), id, claveTutor);
+        redirect.addFlashAttribute("claveTutor", acceso.clave());
+        redirect.addFlashAttribute("matriculaTutor", acceso.matricula());
+        return "redirect:/alumnos/" + id + "/expediente";
+    }
+
     @Generated
-    public ExpedienteController(ExpedienteService expedientes, Apoyo911Service apoyo911, PerfilService perfiles, SesionActual sesion, EstadoRepositorio estados, MunicipioRepositorio municipios, LocalidadRepositorio localidades) {
+    public ExpedienteController(ExpedienteService expedientes, Apoyo911Service apoyo911, PerfilService perfiles, SesionActual sesion, EstadoRepositorio estados, MunicipioRepositorio municipios, LocalidadRepositorio localidades, mx.gob.controlescolar.personas.aplicacion.AccesoTutorService accesosTutor) {
         this.expedientes = expedientes;
         this.apoyo911 = apoyo911;
         this.perfiles = perfiles;
@@ -79,5 +90,6 @@ public class ExpedienteController {
         this.estados = estados;
         this.municipios = municipios;
         this.localidades = localidades;
+        this.accesosTutor = accesosTutor;
     }
 }

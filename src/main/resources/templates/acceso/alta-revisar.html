@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Revisar datos de la CCT</h1>
+    <p>Revise que la información derivada sea correcta. No se puede editar aquí;
+        si algo no coincide, regrese y corrija la CCT.</p>
+
+    <dl>
+        <dt>CCT</dt>
+        <dd th:text="${clave.texto}"></dd>
+        <dt>Entidad</dt>
+        <dd th:text="${clave.entidad} + ' · ' + ${clave.entidadNombre}"></dd>
+        <dt>Clasificador</dt>
+        <dd th:text="${clave.clasificador}"></dd>
+        <dt>Sostenimiento</dt>
+        <dd th:text="${clave.sostenimiento}"></dd>
+        <dt>Identificador de nivel</dt>
+        <dd th:text="${clave.identificador}"></dd>
+        <dt>Nivel</dt>
+        <dd th:text="${clave.nivel}"></dd>
+        <dt>Progresivo</dt>
+        <dd th:text="${clave.progresivo}"></dd>
+        <dt>Nombre de la escuela</dt>
+        <dd th:text="${nombre}"></dd>
+        <dt>Módulos</dt>
+        <dd>
+            <span th:each="m, st : ${habilitados}" th:text="${m} + ${st.last ? '' : ', '}"></span>
+            <span th:if="${#sets.isEmpty(habilitados)}">Ninguno</span>
+        </dd>
+    </dl>
+
+    <form th:action="@{/acceso/escuelas}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <input type="hidden" name="nombre" th:value="${nombre}">
+        <input type="hidden" name="claveCct" th:value="${claveCct}">
+        <input type="hidden" name="sostenimiento" th:value="${sostenimiento}">
+        <input th:each="m : ${habilitados}" type="hidden" name="habilitados" th:value="${m}">
+        <button type="submit">Confirmar alta</button>
+        <a th:href="@{/acceso/escuelas}">Corregir CCT</a>
+    </form>
+</section>
+</body>
+</html>

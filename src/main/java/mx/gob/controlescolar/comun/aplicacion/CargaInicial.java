@@ -46,14 +46,25 @@ implements ApplicationRunner {
         if (this.estados.count() == 0L) {
             Estado edomex = (Estado)this.estados.save(new Estado("Estado de M\u00e9xico"));
             Municipio toluca = (Municipio)this.municipios.save(new Municipio(edomex, "Toluca"));
-            this.localidades.save(new Localidad(toluca, "Centro"));
+            this.localidades.save(new Localidad(toluca, "Centro", "50000"));
+            this.localidades.save(new Localidad(toluca, "Universidad", "50130"));
+        } else {
+            this.localidades.findAll().stream()
+                    .filter(localidad -> localidad.getCodigoPostal() == null || localidad.getCodigoPostal().isBlank())
+                    .forEach(localidad -> {
+                        localidad.definirCodigoPostal("50000");
+                        this.localidades.save(localidad);
+                    });
         }
         this.asegurarPlanesGenerales();
         this.calendarios.sembrarBasica2025();
         if (this.usuarios.count() == 0L) {
             this.usuarios.save(new Usuario(null, "admin", this.encoder.encode((CharSequence)"admin"), "Administrador de plataforma"));
             PlanVersion primaria = this.planes.buscarVigente("PRIMARIA", "Primaria").orElseThrow();
-            Institucion escuela = this.escuelas.alta("Primaria Particular de prueba", null, true, EnumSet.of(Modulo.PLANES, new Modulo[]{Modulo.ALUMNOS, Modulo.PLANTILLA, Modulo.INSCRIPCION, Modulo.EVALUACION, Modulo.DOCUMENTOS}), "particular", "particular");
+            Institucion escuela = this.escuelas.alta("Primaria Particular de prueba", null, true,
+                    EnumSet.of(Modulo.PLANES, Modulo.ALUMNOS, Modulo.PLANTILLA, Modulo.INSCRIPCION,
+                            Modulo.EVALUACION, Modulo.DOCUMENTOS, Modulo.USUARIOS),
+                    "particular", "particular");
             Programa programa = this.programas.adoptar(escuela.getId(), primaria.getId(), "Primaria");
             this.programas.anexar(escuela.getId(), programa.getId(), "ROB", "Rob\u00f3tica");
             this.programas.anexar(escuela.getId(), programa.getId(), "DEP", "Deportes");

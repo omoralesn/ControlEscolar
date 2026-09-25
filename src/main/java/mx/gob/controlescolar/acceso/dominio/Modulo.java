@@ -7,5 +7,6 @@ public enum Modulo {
     INSCRIPCION,
     EVALUACION,
     DOCUMENTOS,
-    PADRES
+    PADRES,
+    USUARIOS
 }
