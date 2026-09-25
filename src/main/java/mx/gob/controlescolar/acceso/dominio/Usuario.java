@@ -52,6 +52,7 @@ public class Usuario implements UserDetails {
     private boolean activo = true;
     private boolean bloqueado = false;
     private boolean credencialesVigentes = true;
+    private int intentosFallidos;
     private LocalDate vigenteDesde;
     private LocalDate vigenteHasta;
 
@@ -127,6 +128,18 @@ public class Usuario implements UserDetails {
     public void reponerCredenciales(String claveCifrada) {
         this.clave = claveCifrada;
         this.credencialesVigentes = true;
+        this.intentosFallidos = 0;
+    }
+
+    public void registrarIntentoFallido() {
+        this.intentosFallidos++;
+        if (this.intentosFallidos >= 5) {
+            this.bloqueado = true;
+        }
+    }
+
+    public void reiniciarIntentos() {
+        this.intentosFallidos = 0;
     }
 
     /** Permisos del perfil, se cargan al autenticar y pasan a ser autoridades de Spring Security. */

@@ -1,5 +1,7 @@
 package mx.gob.controlescolar.comun.web;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import mx.gob.controlescolar.acceso.aplicacion.ModuloGuardia;
 import mx.gob.controlescolar.acceso.dominio.Modulo;
 import mx.gob.controlescolar.acceso.dominio.Usuario;
@@ -20,7 +22,8 @@ public class MenuAdvice {
     private final ObjectProvider<ModuloGuardia> modulos;
 
     @ModelAttribute
-    public void menu(Model model) {
+    public void menu(Model model, HttpServletRequest request) {
+        publicarAvisos(model, request);
         SesionActual actual = sesion.getIfAvailable();
         Usuario usuario = actual == null ? null : actual.usuario();
         ModuloGuardia guardia = modulos.getIfAvailable();
@@ -51,5 +54,22 @@ public class MenuAdvice {
             return uri;
         }
         return "";
+    }
+
+    private static void publicarAvisos(Model model, HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return;
+        }
+        pasar(model, session, "aviso");
+        pasar(model, session, "error");
+    }
+
+    private static void pasar(Model model, HttpSession session, String nombre) {
+        Object valor = session.getAttribute(nombre);
+        if (valor != null) {
+            model.addAttribute(nombre, valor);
+            session.removeAttribute(nombre);
+        }
     }
 }

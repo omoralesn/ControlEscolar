@@ -16,6 +16,8 @@ public final class CatalogoPaginas {
             new Pagina(Modulo.PLANES, "/calendarios", "Calendarios"),
             new Pagina(Modulo.PLANES, "/calendarios/propio", "Calendario propio"),
             new Pagina(Modulo.PLANTILLA, "/grupos", "Grupos y plantilla"),
+            new Pagina(Modulo.PLANTILLA, "/grupos/profesores", "Profesores"),
+            new Pagina(Modulo.PLANTILLA, "/grupos/horarios", "Horarios"),
             new Pagina(Modulo.PLANTILLA, "/escuela/datos", "Datos de la escuela"),
             new Pagina(Modulo.INSCRIPCION, "/grupos", "Inscripción"),
             new Pagina(Modulo.ALUMNOS, "/alumnos", "Alumnos"),

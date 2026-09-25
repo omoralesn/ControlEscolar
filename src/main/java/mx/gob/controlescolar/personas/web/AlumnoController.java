@@ -12,13 +12,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class AlumnoController {
     private final AlumnoService alumnos;
-    private final mx.gob.controlescolar.personas.aplicacion.ExpedienteService expedientes;
-    private final mx.gob.controlescolar.personas.aplicacion.AccesoTutorService accesosTutor;
     private final TrayectoriaService trayectoria;
     private final GrupoService grupos;
     private final PlanService planes;
@@ -30,8 +27,12 @@ public class AlumnoController {
         Long escuela = this.sesion.institucionId();
         this.perfiles.exigir(this.sesion.usuario().getId(), "ALUMNOS_CONSULTAR");
         model.addAttribute("grupos", this.grupos.consultar(escuela));
-        model.addAttribute("inscripciones", this.alumnos.activas(escuela));
-        model.addAttribute("discapacidades", this.expedientes.catalogoDiscapacidades());
+        var inscritas = this.alumnos.activas(escuela);
+        if (grupoId != null) {
+            inscritas = inscritas.stream().filter(inscripcion -> inscripcion.getGrupo().getId().equals(grupoId)).toList();
+        }
+        model.addAttribute("grupoId", grupoId);
+        model.addAttribute("inscripciones", inscritas);
         if (grupoId != null) {
             model.addAttribute("porGrupo", this.alumnos.porGrupo(escuela, grupoId));
         }
@@ -51,43 +52,10 @@ public class AlumnoController {
     @PostMapping(value={"/alumnos"})
     public String registrar(@RequestParam Long grupoId, @RequestParam String curp, @RequestParam String nombre,
                             @RequestParam String apellidoPaterno, @RequestParam(required=false) String apellidoMaterno,
-                            @RequestParam(required=false) String sexo,
-                            @RequestParam(required=false) @org.springframework.format.annotation.DateTimeFormat(iso=org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fechaNacimiento,
-                            @RequestParam(defaultValue="false") boolean usaLentes,
-                            @RequestParam(defaultValue="false") boolean usaZapatoOrtopedico,
-                            @RequestParam(required=false) java.util.Set<Long> discapacidadIds,
-                            @RequestParam(required=false) String calle,
-                            @RequestParam(required=false) String numeroExterior,
-                            @RequestParam(required=false) String colonia,
-                            @RequestParam(required=false) String codigoPostal,
-                            @RequestParam(required=false) String tutorNombre,
-                            @RequestParam(required=false) String tutorApellidoPaterno,
-                            @RequestParam(required=false) String tutorParentesco,
-                            @RequestParam(required=false) String tutorTelefono,
-                            @RequestParam(required=false) String tutorCurp,
-                            @RequestParam(required=false) String claveTutor,
-                            @RequestParam(defaultValue="false") boolean generarAcceso,
-                            RedirectAttributes redirect) {
+                            jakarta.servlet.http.HttpServletRequest request) {
         this.perfiles.exigir(this.sesion.usuario().getId(), "ALUMNOS_CAPTURAR");
         var alumno = this.alumnos.registrar(this.sesion.institucionId(), grupoId, curp, nombre, apellidoPaterno, apellidoMaterno);
-        this.expedientes.guardarDatos(this.sesion.institucionId(), alumno.getId(), nombre, apellidoPaterno, apellidoMaterno,
-                sexo, fechaNacimiento, usaLentes, usaZapatoOrtopedico, discapacidadIds);
-        if (calle != null && !calle.isBlank()) {
-            this.expedientes.guardarDomicilioAlumno(this.sesion.institucionId(), alumno.getId(),
-                    new mx.gob.controlescolar.personas.aplicacion.ExpedienteService.DatosDomicilio(
-                            calle, numeroExterior, null, null, null, colonia, codigoPostal, null, null, null, null));
-        }
-        if (tutorNombre != null && !tutorNombre.isBlank()) {
-            this.expedientes.guardarResponsable(this.sesion.institucionId(), alumno.getId(),
-                    new mx.gob.controlescolar.personas.aplicacion.ExpedienteService.DatosResponsable(
-                            tutorCurp, tutorNombre, tutorApellidoPaterno, null, tutorParentesco, tutorTelefono,
-                            null, null, null, null, true, null));
-            if (generarAcceso) {
-                var acceso = this.accesosTutor.definir(this.sesion.institucionId(), alumno.getId(), claveTutor);
-                redirect.addFlashAttribute("claveTutor", acceso.clave());
-                redirect.addFlashAttribute("matriculaTutor", acceso.matricula());
-            }
-        }
+        request.getSession().setAttribute("aviso", "Alumno registrado. Completa el expediente.");
         return "redirect:/alumnos/" + alumno.getId() + "/expediente";
     }
 
@@ -191,10 +159,8 @@ public class AlumnoController {
     }
 
     @Generated
-    public AlumnoController(AlumnoService alumnos, mx.gob.controlescolar.personas.aplicacion.ExpedienteService expedientes, mx.gob.controlescolar.personas.aplicacion.AccesoTutorService accesosTutor, TrayectoriaService trayectoria, GrupoService grupos, PlanService planes, PerfilService perfiles, SesionActual sesion) {
+    public AlumnoController(AlumnoService alumnos, TrayectoriaService trayectoria, GrupoService grupos, PlanService planes, PerfilService perfiles, SesionActual sesion) {
         this.alumnos = alumnos;
-        this.expedientes = expedientes;
-        this.accesosTutor = accesosTutor;
         this.trayectoria = trayectoria;
         this.grupos = grupos;
         this.planes = planes;

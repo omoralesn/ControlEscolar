@@ -7,10 +7,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import mx.gob.controlescolar.acceso.web.EntradaSeguridad;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SeguridadConfig {
+
+    private final EntradaSeguridad entrada;
 
     @Bean
     SecurityFilterChain filtro(HttpSecurity http) throws Exception {
@@ -25,7 +31,8 @@ public class SeguridadConfig {
                         .anyRequest().hasAnyRole("ESCUELA", "SUPER", "PLATAFORMA"))
                 .formLogin(form -> form
                         .loginPage("/entrar")
-                        .defaultSuccessUrl("/panel", true)
+                        .successHandler(entrada)
+                        .failureHandler(entrada)
                         .permitAll())
                 .logout(logout -> logout.logoutSuccessUrl("/entrar"))
                 .build();

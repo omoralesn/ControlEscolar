@@ -70,6 +70,7 @@ public class AsistenciaController {
             }
         }
         asistencia.registrarMatriz(sesion.institucionId(), grupoId, fecha, presentes);
+        solicitud.getSession().setAttribute("aviso", "Lista del " + fecha + " guardada.");
         return "redirect:/asistencia?grupoId=" + grupoId + "&fecha=" + fecha;
     }
 

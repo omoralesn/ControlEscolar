@@ -10,10 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-/**
- * Bitácora de operaciones de acceso. Pendiente: auditar capturas de calificaciones y
- * otras operaciones académicas sensibles.
- */
+/** Bitácora de acceso y de capturas escolares (calificaciones, listas y documentos). */
 @Service
 @RequiredArgsConstructor
 public class AuditoriaService {

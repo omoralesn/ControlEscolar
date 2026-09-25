@@ -37,6 +37,7 @@ public class CalificacionService {
     private final ModuloGuardia modulos;
     private final AvisoService avisos;
     private final CalendarioService calendarios;
+    private final mx.gob.controlescolar.acceso.aplicacion.AuditoriaService auditoria;
 
     @Transactional
     public Calificacion capturar(Long institucionId, Long alumnoId, String asignatura, int periodoOrden,
@@ -148,6 +149,7 @@ public class CalificacionService {
                     nueva.setOrdenExtra(ordenExtra);
                     return nueva;
                 });
+        String antes = calificacion.getValor() == null ? calificacion.getObservacion() : String.valueOf(calificacion.getValor());
         if (plan.isCualitativa()) {
             calificacion.setObservacion(observacion);
             calificacion.setValor(null);
@@ -159,6 +161,9 @@ public class CalificacionService {
         if (calendarios.visible(plan.getId(), periodoOrden, momentoId)) {
             avisos.publicar(institucionId, alumnoId, "Se publicó una evaluación de " + asignatura);
         }
+        String despues = guardada.getValor() == null ? guardada.getObservacion() : String.valueOf(guardada.getValor());
+        auditoria.registrar(institucionId, "CALIFICACION", asignatura + " " + antes + " → " + despues,
+                String.valueOf(alumnoId), null);
         return guardada;
     }
 
@@ -177,8 +182,12 @@ public class CalificacionService {
                 .findByAlumnoIdAndAsignaturaClaveAndPeriodoOrdenAndMomentoId(alumnoId, asignatura, periodoOrden, momentoId)
                 .orElseGet(() -> new Calificacion(institucionId, alumnoId, inscripcion.getPlanVersion().getId(),
                         asignatura, periodoOrden, momentoId, null, null, false));
+        Integer antes = calificacion.getFaltas();
         calificacion.setFaltas(faltas);
-        return calificaciones.save(calificacion);
+        Calificacion guardada = calificaciones.save(calificacion);
+        auditoria.registrar(institucionId, "FALTAS_MATERIA", asignatura + " " + antes + " → " + faltas,
+                String.valueOf(alumnoId), null);
+        return guardada;
     }
 
     /** Captura de básica: una celda por alumno y asignatura en el mismo momento. Clave v_alumno_asignatura o f_alumno_asignatura. */

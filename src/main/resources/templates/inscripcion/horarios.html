@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1>Horarios</h1>
+    <form th:action="@{/horarios}" method="post">
+        <input th:replace="~{comun/csrf :: token}">
+        <label>Grupo
+            <select name="grupoId">
+                <option th:each="grupo : ${grupos}" th:value="${grupo.id}"
+                        th:text="${grupo.nombre + (grupo.aula != null ? ' · ' + grupo.aula : '')}"></option>
+            </select>
+        </label>
+        <label>Profesor del catálogo
+            <select name="profesorId">
+                <option th:each="profesor : ${profesores}" th:value="${profesor.id}" th:text="${profesor.nombre}"></option>
+            </select>
+        </label>
+        <label>Asignatura del plan
+            <select name="asignatura">
+                <option value="">Elegir del catálogo</option>
+                <option th:each="materia : ${materias}" th:value="${materia.clave}"
+                        th:text="${materia.clave + ' · ' + materia.nombre}"></option>
+            </select>
+        </label>
+        <label>Asignatura que no está en el catálogo <input name="asignaturaLibre"></label>
+        <label>Día <input name="dia" required></label>
+        <label>Inicio <input name="horaInicio" required placeholder="08:00"></label>
+        <label>Fin <input name="horaFin" required placeholder="09:00"></label>
+        <button type="submit">Asignar horario</button>
+    </form>
+    <table>
+        <tr th:each="horario : ${horarios}">
+            <td th:text="${horario.grupo.nombre}"></td>
+            <td th:text="${horario.grupo.aula}"></td>
+            <td th:text="${horario.profesor.nombre}"></td>
+            <td th:text="${horario.asignaturaClave}"></td>
+            <td th:text="${horario.dia + ' ' + horario.horaInicio + '-' + horario.horaFin}"></td>
+        </tr>
+    </table>
+</section>
+</body>
+</html>

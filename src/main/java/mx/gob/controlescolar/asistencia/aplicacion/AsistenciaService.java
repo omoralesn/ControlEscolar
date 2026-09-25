@@ -27,6 +27,7 @@ public class AsistenciaService {
     private final FaltaProfesorRepositorio faltasProfesor;
     private final ModuloGuardia modulos;
     private final AvisoService avisos;
+    private final mx.gob.controlescolar.acceso.aplicacion.AuditoriaService auditoria;
 
     @Transactional
     public void registrarLista(Long institucionId, Long grupoId, LocalDate fecha, Long alumnoId, boolean presente) {
@@ -55,6 +56,8 @@ public class AsistenciaService {
                 avisos.publicar(institucionId, celda.getKey(), "Se registró una falta");
             }
         }
+        long ausentes = presentes.values().stream().filter(presente -> !Boolean.TRUE.equals(presente)).count();
+        auditoria.registrar(institucionId, "LISTA_ASISTENCIA", fecha + " ausentes=" + ausentes, null, null);
     }
 
     public Map<Long, Boolean> deLaLista(Long institucionId, Long grupoId, LocalDate fecha) {

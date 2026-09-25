@@ -3,10 +3,8 @@
       th:replace="~{comun/layout :: pagina(~{::contenido})}">
 <body>
 <section th:fragment="contenido">
-    <h1>Grupos y plantilla</h1>
-    <p>El profesor, el periodo y la asignatura se eligen del catálogo. Si no está, se registra aquí mismo.</p>
-
-    <h2>Grupo</h2>
+    <h1>Grupos</h1>
+    <p>El periodo se elige del plan. Aula y capacidad limitan la inscripción.</p>
     <form th:action="@{/grupos}" method="post">
         <input th:replace="~{comun/csrf :: token}">
         <label>Programa
@@ -38,55 +36,6 @@
             <td th:text="${grupo.edificio}"></td>
             <td th:text="${grupo.aula}"></td>
             <td th:text="${grupo.capacidad}"></td>
-        </tr>
-    </table>
-
-    <h2>Catálogo de profesores</h2>
-    <table>
-        <tr th:each="profesor : ${profesores}">
-            <td th:text="${profesor.nombre}"></td>
-        </tr>
-    </table>
-    <form th:action="@{/profesores}" method="post">
-        <input th:replace="~{comun/csrf :: token}">
-        <label>Profesor que no está en el catálogo <input name="nombre" required></label>
-        <button type="submit">Registrar profesor</button>
-    </form>
-
-    <h2>Horario</h2>
-    <form th:action="@{/horarios}" method="post">
-        <input th:replace="~{comun/csrf :: token}">
-        <label>Grupo
-            <select name="grupoId">
-                <option th:each="grupo : ${grupos}" th:value="${grupo.id}"
-                        th:text="${grupo.nombre + (grupo.aula != null ? ' · ' + grupo.aula : '')}"></option>
-            </select>
-        </label>
-        <label>Profesor del catálogo
-            <select name="profesorId">
-                <option th:each="profesor : ${profesores}" th:value="${profesor.id}" th:text="${profesor.nombre}"></option>
-            </select>
-        </label>
-        <label>Asignatura del plan
-            <select name="asignatura">
-                <option value="">Elegir del catálogo</option>
-                <option th:each="materia : ${materias}" th:value="${materia.clave}"
-                        th:text="${materia.clave + ' · ' + materia.nombre}"></option>
-            </select>
-        </label>
-        <label>Asignatura que no está en el catálogo <input name="asignaturaLibre"></label>
-        <label>Día <input name="dia" required></label>
-        <label>Inicio <input name="horaInicio" required placeholder="08:00"></label>
-        <label>Fin <input name="horaFin" required placeholder="09:00"></label>
-        <button type="submit">Asignar horario</button>
-    </form>
-    <table>
-        <tr th:each="horario : ${horarios}">
-            <td th:text="${horario.grupo.nombre}"></td>
-            <td th:text="${horario.grupo.aula}"></td>
-            <td th:text="${horario.profesor.nombre}"></td>
-            <td th:text="${horario.asignaturaClave}"></td>
-            <td th:text="${horario.dia + ' ' + horario.horaInicio + '-' + horario.horaFin}"></td>
         </tr>
     </table>
 </section>

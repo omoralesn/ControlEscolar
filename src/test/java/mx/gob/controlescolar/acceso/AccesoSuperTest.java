@@ -285,5 +285,11 @@ class AccesoSuperTest {
         var repuesto = usuarios.findByLogin("secuser").orElseThrow();
         assertTrue(repuesto.isCredentialsNonExpired());
         assertTrue(encoder.matches("clave-nueva", repuesto.getPassword()));
+        repuesto.registrarIntentoFallido();
+        repuesto.registrarIntentoFallido();
+        repuesto.registrarIntentoFallido();
+        repuesto.registrarIntentoFallido();
+        repuesto.registrarIntentoFallido();
+        assertFalse(repuesto.isAccountNonLocked());
     }
 }

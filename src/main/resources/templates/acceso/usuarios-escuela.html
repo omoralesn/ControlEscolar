@@ -4,12 +4,12 @@
 <body>
 <section th:fragment="contenido">
     <h1>Usuarios</h1>
-    <p>Los perfiles los define el super. Aquí se asigna un perfil existente al crear un usuario.</p>
+    <p>Los perfiles los define el super. El detalle de la cuenta (rol, bloqueo y credencial) se abre aparte.</p>
     <form th:if="${puedeCapturar}" th:action="@{/usuarios}" method="post">
         <input th:replace="~{comun/csrf :: token}">
         <label>Nombre <input name="nombre" required></label>
         <label>Usuario <input name="login" required></label>
-        <label>Contraseña <input name="clave" required></label>
+        <label>Contraseña <input name="clave" type="password" minlength="6" required></label>
         <label>Perfil
             <select name="perfilId" required>
                 <option value="" disabled selected>Seleccione</option>
@@ -19,55 +19,17 @@
         <button type="submit">Crear usuario</button>
     </form>
     <p th:unless="${puedeCapturar}">Tu perfil no permite capturar usuarios.</p>
-    <h2>Usuarios existentes</h2>
     <table>
         <tr>
-            <th>Usuario</th>
-            <th>Nombre</th>
-            <th>Rol</th>
-            <th>Perfil</th>
-            <th>Cuenta</th>
-            <th>Bloqueo</th>
-            <th>Credencial</th>
-            <th></th>
+            <th>Usuario</th><th>Nombre</th><th>Rol</th><th>Perfil</th><th>Cuenta</th><th></th>
         </tr>
         <tr th:each="fila : ${usuarios}">
             <td th:text="${fila.usuario.login}"></td>
             <td th:text="${fila.usuario.nombre}"></td>
             <td th:text="${fila.usuario.alcance}"></td>
             <td th:text="${fila.perfilNombre}"></td>
-            <td th:text="${fila.usuario.enabled and fila.usuario.accountNonExpired} ? 'Habilitada' : 'Deshabilitada'"></td>
-            <td th:text="${fila.usuario.accountNonLocked} ? 'Libre' : 'Bloqueada'"></td>
-            <td th:text="${fila.usuario.credentialsNonExpired} ? 'Vigente' : 'Vencida'"></td>
-            <td>
-                <form th:if="${puedeCapturar}" th:action="@{/usuarios/perfil}" method="post">
-                    <input th:replace="~{comun/csrf :: token}">
-                    <input type="hidden" name="usuarioId" th:value="${fila.usuario.id}">
-                    <label>Perfil
-                        <select name="perfilId">
-                            <option th:each="perfil : ${perfiles}" th:value="${perfil.id}"
-                                    th:text="${perfil.nombre}" th:selected="${perfil.id == fila.perfilId}"></option>
-                        </select>
-                    </label>
-                    <button type="submit">Reasignar</button>
-                </form>
-                <form th:if="${puedeCapturar}" th:action="@{/usuarios/bloquear}" method="post">
-                    <input th:replace="~{comun/csrf :: token}">
-                    <input type="hidden" name="usuarioId" th:value="${fila.usuario.id}">
-                    <button type="submit">Bloquear</button>
-                </form>
-                <form th:if="${puedeCapturar}" th:action="@{/usuarios/desbloquear}" method="post">
-                    <input th:replace="~{comun/csrf :: token}">
-                    <input type="hidden" name="usuarioId" th:value="${fila.usuario.id}">
-                    <button type="submit">Desbloquear</button>
-                </form>
-                <form th:if="${puedeCapturar}" th:action="@{/usuarios/credencial}" method="post">
-                    <input th:replace="~{comun/csrf :: token}">
-                    <input type="hidden" name="usuarioId" th:value="${fila.usuario.id}">
-                    <label>Nueva credencial <input name="clave" type="password" minlength="6" required></label>
-                    <button type="submit">Reponer credencial</button>
-                </form>
-            </td>
+            <td th:text="${fila.usuario.accountNonLocked and fila.usuario.enabled} ? 'Entra' : 'No entra'"></td>
+            <td><a th:href="@{/usuarios/{id}(id=${fila.usuario.id})}">Cuenta</a></td>
         </tr>
     </table>
 </section>

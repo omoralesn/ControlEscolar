@@ -111,6 +111,19 @@ public class AccesoController {
         return "acceso/usuarios";
     }
 
+    @GetMapping("/acceso/escuelas/{escuelaId}/cuentas/{usuarioId}")
+    public String cuenta(@PathVariable Long escuelaId, @PathVariable Long usuarioId, Model model) {
+        var fila = perfiles.filas(escuelaId).stream().filter(item -> item.usuario().getId().equals(usuarioId)).findFirst()
+                .orElseThrow(() -> new mx.gob.controlescolar.comun.aplicacion.NegocioException("El usuario no existe"));
+        model.addAttribute("fila", fila);
+        model.addAttribute("perfiles", perfiles.deLaEscuela(escuelaId));
+        model.addAttribute("escuelaId", escuelaId);
+        model.addAttribute("escuela", escuelas.obtener(escuelaId));
+        model.addAttribute("puedeCapturar", true);
+        model.addAttribute("superusuario", true);
+        return "acceso/cuenta";
+    }
+
     @GetMapping("/acceso/escuelas/{id}/perfiles")
     public String perfiles(@PathVariable Long id, Model model) {
         model.addAttribute("escuela", escuelas.obtener(id));
@@ -168,7 +181,7 @@ public class AccesoController {
     @PostMapping("/acceso/usuarios/perfil")
     public String reasignar(@RequestParam Long escuelaId, @RequestParam Long usuarioId, @RequestParam Long perfilId) {
         perfiles.reasignar(escuelaId, usuarioId, perfilId);
-        return "redirect:/acceso/escuelas/" + escuelaId + "/usuarios";
+        return "redirect:/acceso/escuelas/" + escuelaId + "/cuentas/" + usuarioId;
     }
 
     @PostMapping("/acceso/perfiles/plantilla")
@@ -226,37 +239,37 @@ public class AccesoController {
                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate vigenteDesde,
                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate vigenteHasta) {
         acceso.definirVigencia(usuarioId, vigenteDesde, vigenteHasta);
-        return "redirect:/acceso/escuelas/" + escuelaId + "/usuarios";
+        return "redirect:/acceso/escuelas/" + escuelaId + "/cuentas/" + usuarioId;
     }
 
     @PostMapping("/acceso/usuarios/{id}/suspender")
     public String suspenderUsuario(@PathVariable Long id, @RequestParam Long escuelaId) {
         acceso.suspenderUsuario(id);
-        return "redirect:/acceso/escuelas/" + escuelaId + "/usuarios";
+        return "redirect:/acceso/escuelas/" + escuelaId + "/cuentas/" + id;
     }
 
     @PostMapping("/acceso/usuarios/{id}/activar")
     public String activarUsuario(@PathVariable Long id, @RequestParam Long escuelaId) {
         acceso.activarUsuario(id);
-        return "redirect:/acceso/escuelas/" + escuelaId + "/usuarios";
+        return "redirect:/acceso/escuelas/" + escuelaId + "/cuentas/" + id;
     }
 
     @PostMapping("/acceso/usuarios/{id}/bloquear")
     public String bloquearUsuario(@PathVariable Long id, @RequestParam Long escuelaId) {
         acceso.bloquear(id, escuelaId);
-        return "redirect:/acceso/escuelas/" + escuelaId + "/usuarios";
+        return "redirect:/acceso/escuelas/" + escuelaId + "/cuentas/" + id;
     }
 
     @PostMapping("/acceso/usuarios/{id}/desbloquear")
     public String desbloquearUsuario(@PathVariable Long id, @RequestParam Long escuelaId) {
         acceso.desbloquear(id, escuelaId);
-        return "redirect:/acceso/escuelas/" + escuelaId + "/usuarios";
+        return "redirect:/acceso/escuelas/" + escuelaId + "/cuentas/" + id;
     }
 
     @PostMapping("/acceso/usuarios/credencial")
     public String credencial(@RequestParam Long usuarioId, @RequestParam Long escuelaId, @RequestParam String clave) {
         acceso.reponerCredencial(usuarioId, escuelaId, clave);
-        return "redirect:/acceso/escuelas/" + escuelaId + "/usuarios";
+        return "redirect:/acceso/escuelas/" + escuelaId + "/cuentas/" + usuarioId;
     }
 
     @PostMapping("/acceso/perfiles")

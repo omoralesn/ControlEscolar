@@ -33,6 +33,7 @@ public class DocumentoService {
     private final DictamenRepositorio dictamenes;
     private final ArchivoEscolar archivos;
     private final ModuloGuardia modulos;
+    private final mx.gob.controlescolar.acceso.aplicacion.AuditoriaService auditoria;
 
     @Transactional
     public DocumentoEscolar constancia(Long institucionId, Long alumnoId, Long planVersionId) {
@@ -75,6 +76,7 @@ public class DocumentoService {
         byte[] pdf = this.pdf(contenido);
         String archivoId = this.archivos.guardar(institucionId, pdf);
         String folio = tipo + "-" + alumnoId + "-" + planVersionId;
+        this.auditoria.registrar(institucionId, "DOCUMENTO", tipo + " " + folio, String.valueOf(alumnoId), null);
         return (DocumentoEscolar)this.documentos.save(new DocumentoEscolar(institucionId, alumnoId, tipo, folio, archivoId));
     }
 
@@ -94,7 +96,7 @@ public class DocumentoService {
     }
 
     @Generated
-    public DocumentoService(DocumentoRepositorio documentos, AlumnoRepositorio alumnos, InstitucionRepositorio instituciones, CalificacionRepositorio calificaciones, DictamenRepositorio dictamenes, ArchivoEscolar archivos, ModuloGuardia modulos) {
+    public DocumentoService(DocumentoRepositorio documentos, AlumnoRepositorio alumnos, InstitucionRepositorio instituciones, CalificacionRepositorio calificaciones, DictamenRepositorio dictamenes, ArchivoEscolar archivos, ModuloGuardia modulos, mx.gob.controlescolar.acceso.aplicacion.AuditoriaService auditoria) {
         this.documentos = documentos;
         this.alumnos = alumnos;
         this.instituciones = instituciones;
@@ -102,5 +104,6 @@ public class DocumentoService {
         this.dictamenes = dictamenes;
         this.archivos = archivos;
         this.modulos = modulos;
+        this.auditoria = auditoria;
     }
 }

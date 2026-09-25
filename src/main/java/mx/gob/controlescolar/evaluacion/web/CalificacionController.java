@@ -97,6 +97,7 @@ public class CalificacionController {
             }
         });
         calificaciones.capturarMatriz(sesion.institucionId(), grupo.getPeriodoOrden(), momentoId, celdas);
+        solicitud.getSession().setAttribute("aviso", "Matriz de calificaciones guardada.");
         return "redirect:/calificaciones?grupoId=" + grupoId + "&momentoId=" + momentoId;
     }
 

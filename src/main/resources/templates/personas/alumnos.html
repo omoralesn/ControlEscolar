@@ -23,41 +23,7 @@
         <label>Nombre <input name="nombre" required></label>
         <label>Apellido paterno <input name="apellidoPaterno" required></label>
         <label>Apellido materno <input name="apellidoMaterno"></label>
-        <label>Sexo
-            <select name="sexo">
-                <option value="">Sin declarar</option>
-                <option value="H">Hombre</option>
-                <option value="M">Mujer</option>
-            </select>
-        </label>
-        <label>Fecha de nacimiento <input name="fechaNacimiento" type="date"></label>
-        <label><input type="checkbox" name="usaLentes" value="true"> Usa lentes</label>
-        <label><input type="checkbox" name="usaZapatoOrtopedico" value="true"> Usa zapato ortopédico</label>
-        <fieldset>
-            <legend>Discapacidades (hasta tres, para el 911)</legend>
-            <label th:each="item : ${discapacidades}">
-                <input type="checkbox" name="discapacidadIds" th:value="${item.id}">
-                <span th:text="${item.nombre}"></span>
-            </label>
-        </fieldset>
-        <fieldset>
-            <legend>Domicilio</legend>
-            <label>Calle <input name="calle"></label>
-            <label>Número exterior <input name="numeroExterior"></label>
-            <label>Colonia <input name="colonia"></label>
-            <label>Código postal <input name="codigoPostal" maxlength="5"></label>
-        </fieldset>
-        <fieldset>
-            <legend>Tutor</legend>
-            <label>Nombre <input name="tutorNombre"></label>
-            <label>Apellido paterno <input name="tutorApellidoPaterno"></label>
-            <label>Parentesco <input name="tutorParentesco"></label>
-            <label>Teléfono <input name="tutorTelefono"></label>
-            <label>CURP <input name="tutorCurp" maxlength="18"></label>
-            <label>Clave de acceso (vacía = se genera) <input name="claveTutor" autocomplete="off"></label>
-            <label><input type="checkbox" name="generarAcceso" value="true" checked> Abrir acceso con la matrícula</label>
-        </fieldset>
-        <button type="submit">Registrar y abrir expediente</button>
+        <button type="submit">Registrar y completar expediente</button>
     </form>
     <table>
         <tr th:each="inscripcion : ${inscripciones}">
@@ -67,6 +33,8 @@
             <td th:text="${inscripcion.alumno.estatus}"></td>
             <td th:text="${inscripcion.grupo.nombre}"></td>
             <td><a th:href="@{/alumnos/{id}/expediente(id=${inscripcion.alumno.id})}">Expediente</a></td>
+            <td><a th:href="@{/asistencia(grupoId=${inscripcion.grupo.id})}">Asistencia</a></td>
+            <td><a th:href="@{/calificaciones(grupoId=${inscripcion.grupo.id})}">Calificaciones</a></td>
             <td><a th:href="@{/documentos/kardex}">Kardex</a></td>
             <td><a th:href="@{/documentos/boletas}">Boleta</a></td>
             <td><a th:href="@{/alumnos/{id}/dictamen(id=${inscripcion.alumno.id})}">Dictamen</a></td>

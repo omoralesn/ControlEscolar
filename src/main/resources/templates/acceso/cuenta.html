@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{comun/layout :: pagina(~{::contenido})}">
+<body>
+<section th:fragment="contenido">
+    <h1 th:text="${fila.usuario.nombre}">Cuenta</h1>
+    <p>
+        <span th:text="${fila.usuario.login}"></span>
+        · rol <span th:text="${fila.usuario.alcance}"></span>
+        · perfil <span th:text="${fila.perfilNombre}"></span>
+    </p>
+    <p>
+        <span th:text="${fila.usuario.enabled and fila.usuario.accountNonExpired} ? 'Habilitada' : 'Deshabilitada'"></span>
+        · <span th:text="${fila.usuario.accountNonLocked} ? 'Libre' : 'Bloqueada'"></span>
+        · credencial <span th:text="${fila.usuario.credentialsNonExpired} ? 'vigente' : 'vencida'"></span>
+    </p>
+    <p>
+        <a th:if="${superusuario}" th:href="@{/acceso/escuelas/{id}/usuarios(id=${escuelaId})}">Volver</a>
+        <a th:unless="${superusuario}" th:href="@{/usuarios}">Volver</a>
+    </p>
+
+    <div th:if="${puedeCapturar}">
+        <h2>Perfil</h2>
+        <form th:action="${superusuario} ? @{/acceso/usuarios/perfil} : @{/usuarios/perfil}" method="post">
+            <input th:replace="~{comun/csrf :: token}">
+            <input type="hidden" name="usuarioId" th:value="${fila.usuario.id}">
+            <input th:if="${superusuario}" type="hidden" name="escuelaId" th:value="${escuelaId}">
+            <label>Perfil
+                <select name="perfilId">
+                    <option th:each="perfil : ${perfiles}" th:value="${perfil.id}" th:text="${perfil.nombre}"
+                            th:selected="${perfil.id == fila.perfilId}"></option>
+                </select>
+            </label>
+            <button type="submit">Guardar perfil</button>
+        </form>
+
+        <h2 th:if="${superusuario}">Vigencia</h2>
+        <form th:if="${superusuario}" th:action="@{/acceso/usuarios/vigencia}" method="post">
+            <input th:replace="~{comun/csrf :: token}">
+            <input type="hidden" name="usuarioId" th:value="${fila.usuario.id}">
+            <input type="hidden" name="escuelaId" th:value="${escuelaId}">
+            <label>Desde <input name="vigenteDesde" type="date" th:value="${fila.usuario.vigenteDesde}"></label>
+            <label>Hasta <input name="vigenteHasta" type="date" th:value="${fila.usuario.vigenteHasta}"></label>
+            <button type="submit">Guardar vigencia</button>
+        </form>
+
+        <h2>Cuenta</h2>
+        <form th:if="${superusuario}" th:action="@{/acceso/usuarios/{id}/suspender(id=${fila.usuario.id})}" method="post">
+            <input th:replace="~{comun/csrf :: token}">
+            <input type="hidden" name="escuelaId" th:value="${escuelaId}">
+            <button type="submit">Deshabilitar</button>
+        </form>
+        <form th:if="${superusuario}" th:action="@{/acceso/usuarios/{id}/activar(id=${fila.usuario.id})}" method="post">
+            <input th:replace="~{comun/csrf :: token}">
+            <input type="hidden" name="escuelaId" th:value="${escuelaId}">
+            <button type="submit">Habilitar</button>
+        </form>
+        <form th:action="${superusuario} ? @{/acceso/usuarios/{id}/bloquear(id=${fila.usuario.id})} : @{/usuarios/bloquear}" method="post">
+            <input th:replace="~{comun/csrf :: token}">
+            <input th:unless="${superusuario}" type="hidden" name="usuarioId" th:value="${fila.usuario.id}">
+            <input th:if="${superusuario}" type="hidden" name="escuelaId" th:value="${escuelaId}">
+            <button type="submit">Bloquear</button>
+        </form>
+        <form th:action="${superusuario} ? @{/acceso/usuarios/{id}/desbloquear(id=${fila.usuario.id})} : @{/usuarios/desbloquear}" method="post">
+            <input th:replace="~{comun/csrf :: token}">
+            <input th:unless="${superusuario}" type="hidden" name="usuarioId" th:value="${fila.usuario.id}">
+            <input th:if="${superusuario}" type="hidden" name="escuelaId" th:value="${escuelaId}">
+            <button type="submit">Desbloquear</button>
+        </form>
+
+        <h2>Credencial</h2>
+        <form th:action="${superusuario} ? @{/acceso/usuarios/credencial} : @{/usuarios/credencial}" method="post">
+            <input th:replace="~{comun/csrf :: token}">
+            <input type="hidden" name="usuarioId" th:value="${fila.usuario.id}">
+            <input th:if="${superusuario}" type="hidden" name="escuelaId" th:value="${escuelaId}">
+            <label>Nueva credencial <input name="clave" type="password" minlength="6" required></label>
+            <button type="submit">Reponer credencial</button>
+        </form>
+    </div>
+</section>
+</body>
+</html>

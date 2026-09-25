@@ -31,6 +31,23 @@ public class GrupoController {
 
     @GetMapping("/grupos")
     public String listar(Model model) {
+        cargar(model);
+        return "inscripcion/grupos";
+    }
+
+    @GetMapping("/grupos/profesores")
+    public String profesores(Model model) {
+        cargar(model);
+        return "inscripcion/profesores";
+    }
+
+    @GetMapping("/grupos/horarios")
+    public String horarios(Model model) {
+        cargar(model);
+        return "inscripcion/horarios";
+    }
+
+    private void cargar(Model model) {
         Long escuela = sesion.institucionId();
         var deLaEscuela = programas.deLaEscuela(escuela);
         var periodos = new ArrayList<mx.gob.controlescolar.academico.dominio.PeriodoPlan>();
@@ -48,7 +65,6 @@ public class GrupoController {
                 ? grupos.plantilla(escuela) : java.util.List.of());
         model.addAttribute("horarios", modulos.activo(escuela, Modulo.PLANTILLA)
                 ? grupos.horarios(escuela) : java.util.List.of());
-        return "inscripcion/grupos";
     }
 
     @PostMapping("/grupos")
@@ -71,7 +87,7 @@ public class GrupoController {
     public String profesor(@RequestParam String nombre) {
         perfiles.exigir(sesion.usuario().getId(), "PLANTILLA_CAPTURAR");
         grupos.registrarProfesor(sesion.institucionId(), nombre);
-        return "redirect:/grupos";
+        return "redirect:/grupos/profesores";
     }
 
     @PostMapping("/horarios")
@@ -85,6 +101,6 @@ public class GrupoController {
             throw new mx.gob.controlescolar.comun.aplicacion.NegocioException("Elija una asignatura del catálogo o regístrela");
         }
         grupos.asignar(sesion.institucionId(), grupoId, profesorId, clave, dia, horaInicio, horaFin);
-        return "redirect:/grupos";
+        return "redirect:/grupos/horarios";
     }
 }
